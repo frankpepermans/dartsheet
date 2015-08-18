@@ -1,0 +1,322 @@
+html {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background-color: #fff;
+  overflow: hidden;
+}
+
+body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: monospace;
+  overflow: hidden;
+}
+
+.logo-container-top {
+  margin: 20px 25px 20px 39%;
+}
+
+.logo-container-bottom {
+  position: absolute;
+  bottom: 10px;
+  right: 25px;
+}
+
+h1, p {
+  color: #333;
+  text-align: right;
+}
+
+.grid-header {
+  font-size: 1.3em;
+  text-align: center;
+}
+
+.label-counter {
+  color: gray;
+}
+
+.grid-view {
+}
+
+.even {
+  background-color: #fff;
+}
+.odd {
+  background-color: #eeeef3;
+}
+
+#dart-flex-wrapper {
+  position: absolute;
+  left: 20px;
+  top: 80px;
+  bottom: 82px;
+  right: 20px;
+  overflow: hidden;
+  width: auto;
+  height: auto;
+  border: 1px solid #979797;
+}
+
+.bounds-container-body {
+  border: 1px solid #979797;
+          box-sizing:border-box;
+     -moz-box-sizing:border-box;
+  -webkit-box-sizing:border-box;
+}
+
+.sprite-sheet {
+  float: right;
+  margin: 10px 0 0 0;
+}
+
+.data-grid {
+  background-color: #fff;
+  cursor: crosshair;
+}
+
+.list-renderer {
+  border: none;
+  cursor: inherit;
+}
+
+.data-grid-list-renderer {
+  border: none;
+  cursor: inherit;
+}
+
+.tab-bar {
+  background-color: #c7cacc;
+}
+
+.list-scroll-target {
+  position: absolute;
+}
+
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button { 
+  -webkit-appearance: none; 
+  margin: 0; 
+}
+
+.button {
+  outline: none;
+  background: none;
+  border: none;
+  color:#666;
+  font-family: inherit;
+  font-size:.9em;
+  font-weight: bold;
+  padding: 0;
+  text-decoration: none;
+  cursor: inherit;
+}
+
+.button:hover {
+  background-color: #8c8;
+  color:#fff;
+}
+
+.workbook {
+  background-color: #fff;
+}
+
+.item-renderer {
+          box-sizing:border-box;
+     -moz-box-sizing:border-box;
+  -webkit-box-sizing:border-box;
+  border-right: thin solid #ddd;
+  border-bottom: thin solid #ddd;
+  text-decoration: inherit;
+  overflow: hidden;
+  outline: none;
+  cursor: inherit;
+}
+
+.row-item-renderer {
+  cursor: e-resize;
+          box-sizing:border-box;
+     -moz-box-sizing:border-box;
+  -webkit-box-sizing:border-box;
+  border-right: thin solid #aaa;
+  border-top: thin solid #ddd;
+}
+
+.data-grid-header-container {
+          box-sizing:border-box;
+     -moz-box-sizing:border-box;
+  -webkit-box-sizing:border-box;
+  border-right: thin solid #aaa;
+  border-bottom: thin solid #aaa;
+  text-decoration: inherit;
+  overflow: hidden;
+  outline: none;
+  cursor: n-resize;
+}
+
+.EditableText {
+  border: none;
+  background: none;
+  outline: none;
+  cursor: inherit;
+}
+
+.editable-text {
+  border: none;
+  background: none;
+}
+
+.editable-date {
+  border: none;
+  background: none;
+}
+
+.item-renderer-selected {
+  background-color: #999;
+}
+
+.item-renderer-selected:hover {
+  background-color: #ccc;
+}
+
+.grid-group {
+}
+
+input {
+  padding-left: 5px;
+  color: inherit;
+  font-family: inherit;
+}
+
+select {
+  background: none;
+  border: none;
+  color: inherit;
+  font-family: inherit;
+}
+
+select > option {
+  color: #333;
+  font-family: inherit;
+}
+
+.sort-asc > button {
+  background-image: url("img/sortAsc.png");
+  background-position: right center;
+  background-repeat: no-repeat;
+}
+
+.sort-desc > button {
+  background-image: url("img/sortDesc.png");
+  background-position: right center;
+  background-repeat: no-repeat;
+}
+
+.index_1 > button:after {
+  content: " (1)";
+  color: #ddd;
+  font-size: .9em;
+}
+
+.index_2 > button:after {
+  content: " (2)";
+  color: #ddd;
+  font-size: .9em;
+}
+
+.index_3 > button:after {
+  content: " (3)";
+  color: #ddd;
+  font-size: .9em;
+}
+
+.index_4 > button:after {
+  content: " (4)";
+  color: #ddd;
+  font-size: .9em;
+}
+
+.index_5 > button:after {
+  content: " (5)";
+  color: #ddd;
+  font-size: .9em;
+}
+
+.index_6 > button:after {
+  content: " (6)";
+  color: #ddd;
+  font-size: .9em;
+}
+
+.index_7 > button:after {
+  content: " (7)";
+  color: #ddd;
+  font-size: .9em;
+}
+
+.index_8 > button:after {
+  content: " (8)";
+  color: #ddd;
+  font-size: .9em;
+}
+
+.index_9 > button:after {
+  content: " (9)";
+  color: #ddd;
+  font-size: .9em;
+}
+
+.data-grid-item-renderer {
+  transition: background-color .2s ease-out;
+}
+
+.data-grid-item-renderer:hover {
+  background-color: #ccc;
+}
+
+.data-grid-item-renderer-selected {
+  background-color: #999;
+}
+
+.data-grid-item-renderer-selected:hover {
+  background-color: #888;
+}
+
+.item-renderer-label {
+  font-size: .9em;
+  padding-left: 3px;
+  padding-top: 3px;
+  text-decoration: inherit;
+}
+
+.item-renderer-highlight {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  background-color: #ccffcc;
+  -webkit-transition: opacity .25s ease-out;
+     -moz-transition: opacity .25s ease-out;
+       -o-transition: opacity .25s ease-out;
+          transition: opacity .25s ease-out;
+  -webkit-transition-delay: .1s;
+     -moz-transition-delay: .1s;
+       -o-transition-delay: .1s;
+          transition-delay: .1s;
+}
+
+.date-time-chooser-element {
+  -webkit-appearance: none;
+     -moz-appearance: none;
+      -ms-appearance: none;
+          appearance: none;
+          overflow: hidden;
+          padding: 0 0 0 2px;
+          border: none;
+          background: none;
+}

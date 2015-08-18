@@ -1,0 +1,14 @@
+name: dartsheet
+version: 0.0.1
+description: A mobile-friendly web app with routing, responsive CSS, and (optional) Sass support.
+dependencies:
+  dart_flex:
+    path: ../dart_flex
+  observe: any
+transformers:
+- dart_flex/src/transformers/event_transformer
+- $dart2js:
+    checked: false
+    minify: true
+    commandLineOptions:
+    - --trust-primitives
