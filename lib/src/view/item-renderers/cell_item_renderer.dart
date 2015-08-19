@@ -8,7 +8,7 @@ class CellItemRenderer<D extends Cell<String>> extends EditableLabelItemRenderer
   //
   //---------------------------------
   
-  List<StreamSubscription> _cellValueSubscribtions = <StreamSubscription>[];
+  List<StreamSubscription> _siblingSubscriptions = <StreamSubscription>[];
 
   //---------------------------------
   //
@@ -24,11 +24,17 @@ class CellItemRenderer<D extends Cell<String>> extends EditableLabelItemRenderer
   set data(D value) {
     streamSubscriptionManager.flushIdent('value-listener');
     streamSubscriptionManager.flushIdent('formula-listener');
+    streamSubscriptionManager.flushIdent('selection-listener');
     
     super.data = value;
     
-    streamSubscriptionManager.add('value-listener', value.onValueChanged.listen((_) => invalidateData()));
-    streamSubscriptionManager.add('formula-listener', value.onFormulaChanged.listen((FrameworkEvent<String> event) => invalidateFormula(event.currentTarget as Cell<String>)));
+    if (value != null) {
+      streamSubscriptionManager.add('value-listener', value.onValueChanged.listen((_) => invalidateData()));
+      streamSubscriptionManager.add('formula-listener', value.onFormulaChanged.listen((FrameworkEvent<String> event) => invalidateFormula(event.currentTarget as Cell<String>)));
+      streamSubscriptionManager.add('selection-listener', value.onSelectionChanged.listen((_) => _invalidateSelection()));
+    }
+    
+    _invalidateSelection();
   }
 
   //---------------------------------
@@ -54,68 +60,23 @@ class CellItemRenderer<D extends Cell<String>> extends EditableLabelItemRenderer
     return '';
   }
   
-  void invalidateFormula(Cell<String> cell) {
+  Future invalidateFormula(Cell<String> cell) async {
+    await _clearSiblingSubscriptions();
+    
     final DataGridItemRenderer parentContainer = owner as DataGridItemRenderer;
-    final RegExp re = new RegExp(r'#[A-Z]+[\d]+');
-    final List<String> args = <String>['cellValue'];
-    final List<dynamic> values = <dynamic>[cell.value];
-    final ObservableList<Row<Cell<dynamic>>> dataProvider = parentContainer.grid.dataProvider;
+    final JsFunctionBody jsf = cell.getJavaScriptFunctionBody(parentContainer.grid.dataProvider, _siblingSubscriptions, invalidateFormula);
     
     if (cell.scriptElement != null) cell.scriptElement.remove();
     
-    cell.scriptElement = new ScriptElement();
-    
-    _cellValueSubscribtions.forEach((StreamSubscription S) => S.cancel());
-    
-    _cellValueSubscribtions.clear();
-    
-    re.allMatches(cell.formula).forEach((Match M) {
-      final String id = M.group(0);
-      final String cellId = id.substring(1);
-      
-      args.add(id);
-      
-      final int rowIndex = toRowIndex(cellId);
-      
-      if (rowIndex >= 0) {
-        final Row<Cell<dynamic>> row = dataProvider[rowIndex];
-        
-        for (int j=0, cells=row.length; j<cells; j++) {
-          Cell<dynamic> dpCell = row[j];
-          
-          if (dpCell.id == cellId) {
-            if (dpCell.value == null) values.add(null);
-            else if (!num.parse(dpCell.value, (_) => double.NAN).isNaN) values.add(num.parse(dpCell.value));
-            else values.add(dpCell.value);
-            
-            _cellValueSubscribtions.add(dpCell.onValueChanged.listen((_) => invalidateFormula(cell)));
-            
-            break;
-          }
-        }
-      }
-    });
-    
-    final String rawScript = 'function _inner_cell_method_${cell.id}(${args.join(",")}) { try { ${cell.formula} } catch (error) { return undefined; } }';
-    
-    cell.scriptElement.innerHtml = rawScript.replaceAll('#', '');
-    
-    document.head.append(cell.scriptElement);
-    
     try {
-      cell.value = context.callMethod('_inner_cell_method_${cell.id}', values).toString();
+      cell.scriptElement = new ScriptElement()..innerHtml = jsf.value;
+      
+      document.head.append(cell.scriptElement);
+      
+      cell.value = context.callMethod('__${cell.id}', jsf.arguments).toString();
     } catch (error) {
       cell.value = null;
     }
-  }
-  
-  int toRowIndex(String id) {
-    final RegExp re = new RegExp(r'[\d]+');
-    final Match match = re.firstMatch(id);
-    
-    if (match != null) return int.parse(re.firstMatch(id).group(0)) - 1;
-    
-    return -1;
   }
   
   @override
@@ -124,5 +85,15 @@ class CellItemRenderer<D extends Cell<String>> extends EditableLabelItemRenderer
         (data != null) &&
         (field != null)
     ) data.value = textArea.text;
+  }
+  
+  Future _clearSiblingSubscriptions() async {
+    await _siblingSubscriptions.forEach((StreamSubscription S) async => await S.cancel());
+        
+    _siblingSubscriptions.clear();
+  }
+  
+  void _invalidateSelection() {
+    cssClasses = (data != null && data.selected) ? const <String>['cell-selected'] : null;
   }
 }
