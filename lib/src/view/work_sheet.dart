@@ -2,7 +2,7 @@ part of dartsheet.view;
 
 class WorkSheet extends Group {
   
-  @event Stream<FrameworkEvent<Cell>> onSelectedCellChanged;
+  @event Stream<FrameworkEvent<List<Cell>>> onSelectedCellsChanged;
   
   //---------------------------------
   //
@@ -23,17 +23,17 @@ class WorkSheet extends Group {
   Spreadsheet spreadSheet;
   
   //---------------------------------
-  // selectedCell
+  // selectedCells
   //---------------------------------
   
-  Cell _selectedCell;
+  List<Cell> _selectedCells;
   
-  Cell get selectedCell => _selectedCell;
-  void set selectedCell(Cell value) {
-    if (value != _selectedCell) {
-      _selectedCell = value;
+  List<Cell> get selectedCells => _selectedCells;
+  void set selectedCells(List<Cell> value) {
+    if (value != _selectedCells) {
+      _selectedCells = value;
       
-      notify(new FrameworkEvent<Cell>('selectedCellChanged', relatedObject: value));
+      notify(new FrameworkEvent<List<Cell>>('selectedCellsChanged', relatedObject: value));
     }
   }
   
@@ -162,17 +162,43 @@ class WorkSheet extends Group {
   }
   
   void _handleNewCellRenderer(FrameworkEvent<CellItemRenderer> event) {
-    event.relatedObject.onClick.listen(_handleCellClick);
+    event.relatedObject.onMouseDown.listen(_handleCellDown);
   }
   
-  void _handleCellClick(FrameworkEvent event) {
+  void _handleCellDown(FrameworkEvent<MouseEvent> event) {
     final CellItemRenderer<Cell<String>> renderer = event.currentTarget as CellItemRenderer<Cell<String>>;
+    final DataGridItemRenderer rowRenderer = renderer.owner as DataGridItemRenderer;
     final Cell<String> cell = renderer.data;
+    final Point p0 = event.relatedObject.screen;
+    StreamSubscription mouseMoveSubscription, mouseUpSubscription;
+    int dx = 0, dy = 0;
+    
+    mouseMoveSubscription = document.onMouseMove.listen((MouseEvent event) {
+      dx = event.screen.x - p0.x;
+      dy = event.screen.y - p0.y;
+    });
+    
+    mouseUpSubscription = document.onMouseUp.listen((MouseEvent event) {
+      final List<Cell> cells = <Cell>[];
+      CellItemRenderer<Cell<String>> curr = renderer;
+      int cx = 0;
+      
+      while (dx > cx) {
+        cx += curr.width;
         
-    if (selectedCell != null) selectedCell.selected = false;
-    
-    selectedCell = cell;
-    
-    if (selectedCell != null) selectedCell.selected = true;
+        cells.add(curr.data);
+        
+        curr.data.selected = true;
+        
+        if (curr != rowRenderer.itemRendererInstances.last) curr = rowRenderer.itemRendererInstances[rowRenderer.itemRendererInstances.indexOf(curr) + 1];
+      }
+      
+      selectedCells = cells;
+      
+      mouseMoveSubscription.cancel();
+      mouseUpSubscription.cancel();
+    });
+        
+    if (selectedCells != null) selectedCells.forEach((Cell cell) => cell.selected = false);
   }
 }

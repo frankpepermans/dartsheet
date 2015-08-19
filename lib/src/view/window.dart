@@ -34,17 +34,18 @@ class Window extends DartFlexRootContainer {
       ..className = 'workbook'
       ..percentWidth = 100.0
       ..percentHeight = 100.0
-      ..onSelectedCellChanged.listen(_handleCellSelection);
+      ..onSelectedCellsChanged.listen(_handleCellSelection);
     
     addComponent(methodFieldBC);
     addComponent(sheet);
   }
   
   void _handleMethodField(FrameworkEvent event) {
-    if (sheet.selectedCell != null) sheet.selectedCell.formula = methodField.text;
+    if (sheet.selectedCells != null) sheet.selectedCells.forEach((Cell cell) => cell.formula = methodField.text);
   }
   
-  void _handleCellSelection(FrameworkEvent<Cell> event) {
-    methodField.text = event.relatedObject.formula;
+  void _handleCellSelection(FrameworkEvent<List<Cell>> event) {
+    if (event.relatedObject.isNotEmpty) methodField.text = event.relatedObject.first.formula;
+    else methodField.text = '';
   }
 }
