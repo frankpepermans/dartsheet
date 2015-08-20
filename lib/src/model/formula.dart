@@ -12,9 +12,7 @@ class Formula extends EventDispatcherImpl {
   String get body => _body;
   void set body(String value) {
     if (value != _body) {
-      _body = value;
-      
-      _localize();
+      _body = _localize(value);
       
       notify(new FrameworkEvent<String>('bodyChanged', relatedObject: value));
     }
@@ -104,12 +102,13 @@ class Formula extends EventDispatcherImpl {
     return -1;
   }
   
-  void _localize() {
-    if (_body == null) return;
+  String _localize(String value) {
+    if (value == null) return null;
     
     final RegExp re = new RegExp(r'#[A-Z]+[\d]+');
+    int offset = 0;
         
-    re.allMatches(_body).forEach((Match M) {
+    re.allMatches(value).forEach((Match M) {
       final String id = M.group(0);
       
       String cellId = id.substring(1);
@@ -119,8 +118,12 @@ class Formula extends EventDispatcherImpl {
       
       final String localCellId = toCellIdentity(rowIndex + appliesTo.rowIndex - _originator.rowIndex, colIndex + appliesTo.colIndex - _originator.colIndex);
       
-      _body = _body.substring(0, M.start) + '#' + localCellId + _body.substring(M.end);
+      value = value.substring(0, M.start + offset) + '#' + localCellId + value.substring(M.end + offset);
+      
+      offset += localCellId.length - cellId.length;
     });
+    
+    return value;
   }
 }
 

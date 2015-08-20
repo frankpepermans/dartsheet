@@ -26,7 +26,8 @@ class Window extends DartFlexRootContainer {
     methodField = new EditableTextArea()
       ..percentWidth = 100.0
       ..percentHeight = 100.0
-      ..onTextChanged.listen(_handleMethodField);
+      ..onTextChanged.listen(_handleMethodField)
+      ..enabled = false;
     
     methodFieldBC.body.addComponent(methodField);
     
@@ -48,6 +49,8 @@ class Window extends DartFlexRootContainer {
   }
   
   void _handleCellSelection(FrameworkEvent<List<Cell>> event) {
+    methodField.enabled = true;
+    
     if (event.relatedObject.isNotEmpty) methodField.text = event.relatedObject.first.formula.body;
     else methodField.text = '';
   }
