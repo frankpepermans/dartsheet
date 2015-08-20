@@ -107,7 +107,7 @@ input[type=number]::-webkit-outer-spin-button {
   outline: none;
   background: none;
   border: none;
-  color:#666;
+  color: inherit;
   font-family: inherit;
   font-size:.9em;
   font-weight: bold;
@@ -122,7 +122,21 @@ input[type=number]::-webkit-outer-spin-button {
 }
 
 .workbook {
+          box-sizing:border-box;
+     -moz-box-sizing:border-box;
+  -webkit-box-sizing:border-box;
+  border-right: thin solid #ddd;
   background-color: #fff;
+}
+
+.row-highlighted {
+  background-color: #6a6;
+  color: #fff;
+}
+
+.header-highlighted {
+  background-color: #6a6;
+  color: #fff;
 }
 
 .item-renderer {

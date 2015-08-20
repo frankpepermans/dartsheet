@@ -13,13 +13,13 @@ class Window extends DartFlexRootContainer {
   void createChildren() {
     super.createChildren();
     
-    layout = new VerticalLayout();
+    layout = new HorizontalLayout();
     
     BoundsContainer methodFieldBC = new BoundsContainer()
-      ..percentWidth = 100.0
-      ..height = 220
-      ..left = 20
-      ..right = 20
+      ..width = 360
+      ..percentHeight = 100.0
+      ..left = 5
+      ..right = 5
       ..top = 5
       ..bottom = 5;
     
@@ -37,8 +37,8 @@ class Window extends DartFlexRootContainer {
       ..percentHeight = 100.0
       ..onSelectedCellsChanged.listen(_handleCellSelection);
     
-    addComponent(methodFieldBC);
     addComponent(sheet);
+    addComponent(methodFieldBC);
   }
   
   void _handleMethodField(FrameworkEvent event) {

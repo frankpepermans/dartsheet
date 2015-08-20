@@ -1,6 +1,8 @@
 part of dartsheet.view;
 
 class RowItemRenderer<D extends Row<Cell<dynamic>>> extends ItemRenderer<Row<Cell<dynamic>>> {
+  
+  @event Stream<FrameworkEvent> onHighlightedChanged;
 
   //---------------------------------
   //
@@ -17,6 +19,35 @@ class RowItemRenderer<D extends Row<Cell<dynamic>>> extends ItemRenderer<Row<Cel
   final Stream<int> rowOffset;
   
   Button button;
+  
+  //---------------------------------
+  // highlighted
+  //---------------------------------
+  
+  bool _highlighted = false;
+  
+  bool get highlighted => _highlighted;
+  void set highlighted(bool value) {
+    if (value != _highlighted) {
+      _highlighted = value;
+      
+      cssClasses = value ? const <String>['row-highlighted'] : null;
+      
+      rowOffset.last.then(_update);
+      
+      notify(new FrameworkEvent<bool>('highlightedChanged', relatedObject: value));
+    }
+  }
+  
+  //---------------------------------
+  // data
+  //---------------------------------
+  
+  void set data(D value) {
+    super.data = value;
+    
+    rowOffset.last.then(_update);
+  }
 
   //---------------------------------
   //
@@ -43,6 +74,8 @@ class RowItemRenderer<D extends Row<Cell<dynamic>>> extends ItemRenderer<Row<Cel
     button = new Button()
       ..percentWidth = 100.0
       ..percentHeight = 100.0;
+    
+    rowOffset.last.then(_update);
     
     addComponent(button);
   }

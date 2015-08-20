@@ -36,7 +36,7 @@ class CellItemRenderer<D extends Cell<String>> extends EditableLabelItemRenderer
       streamSubscriptionManager.add('focus-listener', value.onFocusChanged.listen((_) => invokeLaterSingle('invalidateSelection', _invalidateSelection)));
     }
     
-    invokeLaterSingle('invalidateSelection', _invalidateSelection);
+    _invalidateSelection();//invokeLaterSingle('invalidateSelection', _invalidateSelection);
   }
 
   //---------------------------------

@@ -10,7 +10,6 @@ class WorkSheet extends Group {
   //
   //---------------------------------
   
-  final StreamController<int> _rowOffsetStreamController = new StreamController();
   final int initRows;
   final int initCols;
   
@@ -20,6 +19,7 @@ class WorkSheet extends Group {
   //
   //---------------------------------
   
+  ColumnList columnList;
   Spreadsheet spreadsheet;
   
   //---------------------------------
@@ -71,15 +71,10 @@ class WorkSheet extends Group {
       ..percentWidth = 100.0
       ..height = 23;
     
-    final ListRenderer columnList = new ListRenderer()
-      ..percentWidth = 100.0
-      ..percentHeight = 100.0
+    columnList = new ColumnList()
       ..rowHeight = 23
       ..dataProvider = dataProvider
-      ..itemRendererFactory = new ItemRendererFactory<RowItemRenderer>(constructorMethod: RowItemRenderer.construct, className: 'row-item-renderer', constructorArguments: <Stream<int>>[_rowOffsetStreamController.stream.asBroadcastStream()])
-      ..autoManageScrollBars = false
-      ..horizontalScrollPolicy = ScrollPolicy.NONE
-      ..verticalScrollPolicy = ScrollPolicy.NONE;
+      ..highlightRange = <int>[];
     
     columnListGroup.addComponent(spacer);
     columnListGroup.addComponent(columnList);
@@ -158,10 +153,11 @@ class WorkSheet extends Group {
     return cell;
   }
   
-  void _updateRowIndices(FrameworkEvent event) {
-    _rowOffsetStreamController.add(spreadsheet.scrollPosition ~/ spreadsheet.rowHeight);
+  void _updateRowIndices([FrameworkEvent event]) {
+    columnList.offsetStream.add(spreadsheet.scrollPosition ~/ spreadsheet.rowHeight);
     
-    if (spreadsheet.scrollPosition > (spreadsheet.rowHeight * spreadsheet.dataProvider.length - spreadsheet.height) * .95) spreadsheet.dataProvider.addAll(_createNewDataProvider(spreadsheet.dataProvider.length));
+    if (spreadsheet.scrollPosition > (spreadsheet.rowHeight * spreadsheet.dataProvider.length - spreadsheet.height) * .95) 
+      spreadsheet.dataProvider.addAll(_createNewDataProvider(spreadsheet.dataProvider.length));
   }
   
   void _handleNewRowRenderer(FrameworkEvent<DataGridItemRenderer> event) {
@@ -171,6 +167,8 @@ class WorkSheet extends Group {
   void _handleNewCellRenderer(FrameworkEvent<CellItemRenderer> event) {
     event.relatedObject.onMouseDown.listen(_handleCellDown);
     event.relatedObject.onMouseOver.listen(_handleCellEntry);
+    
+    _updateRowIndices();
   }
   
   Cell _selectionStartCell;
@@ -212,31 +210,47 @@ class WorkSheet extends Group {
   }
   
   void _updateCurrentSelection(Cell minCell, Cell maxCell) {
+    final List<int> highlightedRows = <int>[];
+    final List<int> highlightedCols = <int>[];
     Cell cell;
-    int startIndex = minCell.globalIndex;
-    int endIndex = maxCell.globalIndex;
     
     _selectedCells = <Cell>[];
     
-    if (startIndex > endIndex) {
+    if (minCell.globalIndex > maxCell.globalIndex) {
       Cell tmpCell = minCell;
-      int tmp = startIndex;
-      
-      startIndex = endIndex;
-      endIndex = tmp;
       
       minCell = maxCell;
       maxCell = tmpCell;
     }
     
+    final int minRowIndex = (minCell.rowIndex < maxCell.rowIndex) ? minCell.rowIndex : maxCell.rowIndex;
+    final int maxRowIndex = (minCell.rowIndex > maxCell.rowIndex) ? minCell.rowIndex : maxCell.rowIndex;
+    final int minColIndex = (minCell.colIndex < maxCell.colIndex) ? minCell.colIndex : maxCell.colIndex;
+    final int maxColIndex = (minCell.colIndex > maxCell.colIndex) ? minCell.colIndex : maxCell.colIndex;
+    
+    final int startIndex = minRowIndex * this.initCols + minColIndex;
+    final int endIndex = maxRowIndex * this.initCols + maxColIndex;
+    
     for (int i=startIndex; i<=endIndex; i++) {
       cell = _spreadsheetCells[i];
       
       if (
-          (cell.rowIndex >= minCell.rowIndex && cell.colIndex >= minCell.colIndex) &&
-          (cell.rowIndex <= maxCell.rowIndex && cell.colIndex <= maxCell.colIndex)
-      ) _selectedCells.add(cell..selected = true);
+          (cell.rowIndex >= minRowIndex && cell.rowIndex <= maxRowIndex) &&
+          (cell.colIndex >= minColIndex && cell.colIndex <= maxColIndex)
+      ) {
+        cell.selected = true;
+        
+        if (!highlightedRows.contains(cell.rowIndex)) highlightedRows.add(cell.rowIndex);
+        if (!highlightedCols.contains(cell.colIndex)) highlightedCols.add(cell.colIndex);
+        
+        _selectedCells.add(cell);
+      }
     }
+    
+    columnList.highlightRange = highlightedRows;
+    spreadsheet.highlightRange = highlightedCols;
+    
+    _updateRowIndices();
     
     notify(new FrameworkEvent<List<Cell>>('selectedCellsChanged', relatedObject: _selectedCells));
   }
