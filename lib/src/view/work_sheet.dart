@@ -20,7 +20,15 @@ class WorkSheet extends Group {
   //
   //---------------------------------
   
-  Spreadsheet spreadSheet;
+  Spreadsheet spreadsheet;
+  
+  //---------------------------------
+  // spreadsheetCells
+  //---------------------------------
+  
+  final List<Cell> _spreadsheetCells = <Cell>[];
+  
+  List<Cell> get spreadsheetCells => _spreadsheetCells;
   
   //---------------------------------
   // selectedCells
@@ -29,13 +37,6 @@ class WorkSheet extends Group {
   List<Cell> _selectedCells;
   
   List<Cell> get selectedCells => _selectedCells;
-  void set selectedCells(List<Cell> value) {
-    if (value != _selectedCells) {
-      _selectedCells = value;
-      
-      notify(new FrameworkEvent<List<Cell>>('selectedCellsChanged', relatedObject: value));
-    }
-  }
   
   //---------------------------------
   //
@@ -83,7 +84,7 @@ class WorkSheet extends Group {
     columnListGroup.addComponent(spacer);
     columnListGroup.addComponent(columnList);
     
-    spreadSheet = new Spreadsheet()
+    spreadsheet = new Spreadsheet()
       ..cssClasses = const <String>[]
       ..percentWidth = 100.0
       ..percentHeight = 100.0
@@ -102,7 +103,7 @@ class WorkSheet extends Group {
       ..onRendererAdded.listen(_handleNewRowRenderer);
     
     gridGroup.addComponent(columnListGroup);
-    gridGroup.addComponent(spreadSheet);
+    gridGroup.addComponent(spreadsheet);
     
     addComponent(gridGroup);
   }
@@ -149,12 +150,18 @@ class WorkSheet extends Group {
     return row;
   }
   
-  Cell<dynamic> _createCell(String id, int rowIndex, int colIndex) => new Cell<dynamic>(id, rowIndex, colIndex, null);
+  Cell<dynamic> _createCell(String id, int rowIndex, int colIndex) {
+    final Cell<dynamic> cell = new Cell<dynamic>(id, _spreadsheetCells.length, rowIndex, colIndex, null);
+    
+    _spreadsheetCells.add(cell);
+    
+    return cell;
+  }
   
   void _updateRowIndices(FrameworkEvent event) {
-    _rowOffsetStreamController.add(spreadSheet.scrollPosition ~/ spreadSheet.rowHeight);
+    _rowOffsetStreamController.add(spreadsheet.scrollPosition ~/ spreadsheet.rowHeight);
     
-    if (spreadSheet.scrollPosition > (spreadSheet.rowHeight * spreadSheet.dataProvider.length - spreadSheet.height) * .95) spreadSheet.dataProvider.addAll(_createNewDataProvider(spreadSheet.dataProvider.length));
+    if (spreadsheet.scrollPosition > (spreadsheet.rowHeight * spreadsheet.dataProvider.length - spreadsheet.height) * .95) spreadsheet.dataProvider.addAll(_createNewDataProvider(spreadsheet.dataProvider.length));
   }
   
   void _handleNewRowRenderer(FrameworkEvent<DataGridItemRenderer> event) {
@@ -163,42 +170,74 @@ class WorkSheet extends Group {
   
   void _handleNewCellRenderer(FrameworkEvent<CellItemRenderer> event) {
     event.relatedObject.onMouseDown.listen(_handleCellDown);
+    event.relatedObject.onMouseOver.listen(_handleCellEntry);
+  }
+  
+  Cell _selectionStartCell;
+  bool _isInSelectionMode = false;
+  
+  void _handleCellEntry(FrameworkEvent<MouseEvent> event) {
+    if (_isInSelectionMode) {
+      final CellItemRenderer<Cell<String>> renderer = event.currentTarget as CellItemRenderer<Cell<String>>;
+      
+      _cleanCurrentSelection();
+      
+      _updateCurrentSelection(_selectionStartCell, renderer.data);
+    }
   }
   
   void _handleCellDown(FrameworkEvent<MouseEvent> event) {
-    final CellItemRenderer<Cell<String>> renderer = event.currentTarget as CellItemRenderer<Cell<String>>;
-    final DataGridItemRenderer rowRenderer = renderer.owner as DataGridItemRenderer;
-    final Cell<String> cell = renderer.data;
-    final Point p0 = event.relatedObject.screen;
-    StreamSubscription mouseMoveSubscription, mouseUpSubscription;
-    int dx = 0, dy = 0;
+    StreamSubscription mouseUpSubscription;
     
-    mouseMoveSubscription = document.onMouseMove.listen((MouseEvent event) {
-      dx = event.screen.x - p0.x;
-      dy = event.screen.y - p0.y;
-    });
+    if (_selectionStartCell != null) _selectionStartCell.focused = false;
+    
+    _cleanCurrentSelection();
+    
+    _isInSelectionMode = true;
+    _selectionStartCell = (event.currentTarget as CellItemRenderer<Cell>).data;
+    
+    _selectionStartCell.focused = true;
     
     mouseUpSubscription = document.onMouseUp.listen((MouseEvent event) {
-      final List<Cell> cells = <Cell>[];
-      CellItemRenderer<Cell<String>> curr = renderer;
-      int cx = 0;
+      _isInSelectionMode = false;
       
-      while (dx > cx) {
-        cx += curr.width;
-        
-        cells.add(curr.data);
-        
-        curr.data.selected = true;
-        
-        if (curr != rowRenderer.itemRendererInstances.last) curr = rowRenderer.itemRendererInstances[rowRenderer.itemRendererInstances.indexOf(curr) + 1];
-      }
-      
-      selectedCells = cells;
-      
-      mouseMoveSubscription.cancel();
       mouseUpSubscription.cancel();
     });
-        
-    if (selectedCells != null) selectedCells.forEach((Cell cell) => cell.selected = false);
+    
+    _updateCurrentSelection(_selectionStartCell, _selectionStartCell);
+  }
+  
+  void _cleanCurrentSelection() {
+    if (_selectedCells != null) _selectedCells.forEach((Cell cell) => cell.selected = false);
+  }
+  
+  void _updateCurrentSelection(Cell minCell, Cell maxCell) {
+    Cell cell;
+    int startIndex = minCell.globalIndex;
+    int endIndex = maxCell.globalIndex;
+    
+    _selectedCells = <Cell>[];
+    
+    if (startIndex > endIndex) {
+      Cell tmpCell = minCell;
+      int tmp = startIndex;
+      
+      startIndex = endIndex;
+      endIndex = tmp;
+      
+      minCell = maxCell;
+      maxCell = tmpCell;
+    }
+    
+    for (int i=startIndex; i<=endIndex; i++) {
+      cell = _spreadsheetCells[i];
+      
+      if (
+          (cell.rowIndex >= minCell.rowIndex && cell.colIndex >= minCell.colIndex) &&
+          (cell.rowIndex <= maxCell.rowIndex && cell.colIndex <= maxCell.colIndex)
+      ) _selectedCells.add(cell..selected = true);
+    }
+    
+    notify(new FrameworkEvent<List<Cell>>('selectedCellsChanged', relatedObject: _selectedCells));
   }
 }

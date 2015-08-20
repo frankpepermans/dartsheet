@@ -25,16 +25,18 @@ class CellItemRenderer<D extends Cell<String>> extends EditableLabelItemRenderer
     streamSubscriptionManager.flushIdent('value-listener');
     streamSubscriptionManager.flushIdent('formula-listener');
     streamSubscriptionManager.flushIdent('selection-listener');
+    streamSubscriptionManager.flushIdent('focus-listener');
     
     super.data = value;
     
     if (value != null) {
       streamSubscriptionManager.add('value-listener', value.onValueChanged.listen((_) => invalidateData()));
-      streamSubscriptionManager.add('formula-listener', value.onFormulaChanged.listen((FrameworkEvent<String> event) => invalidateFormula(event.currentTarget as Cell<String>)));
-      streamSubscriptionManager.add('selection-listener', value.onSelectionChanged.listen((_) => _invalidateSelection()));
+      streamSubscriptionManager.add('formula-listener', value.formula.onBodyChanged.listen((FrameworkEvent<String> event) => invalidateFormula(event.currentTarget as Formula)));
+      streamSubscriptionManager.add('selection-listener', value.onSelectionChanged.listen((_) => invokeLaterSingle('invalidateSelection', _invalidateSelection)));
+      streamSubscriptionManager.add('focus-listener', value.onFocusChanged.listen((_) => invokeLaterSingle('invalidateSelection', _invalidateSelection)));
     }
     
-    _invalidateSelection();
+    invokeLaterSingle('invalidateSelection', _invalidateSelection);
   }
 
   //---------------------------------
@@ -60,22 +62,22 @@ class CellItemRenderer<D extends Cell<String>> extends EditableLabelItemRenderer
     return '';
   }
   
-  Future invalidateFormula(Cell<String> cell) async {
+  Future invalidateFormula(Formula formula) async {
     await _clearSiblingSubscriptions();
     
     final DataGridItemRenderer parentContainer = owner as DataGridItemRenderer;
-    final JsFunctionBody jsf = cell.getJavaScriptFunctionBody(parentContainer.grid.dataProvider, _siblingSubscriptions, invalidateFormula);
+    final JsFunctionBody jsf = formula.getJavaScriptFunctionBody(parentContainer.grid.dataProvider, _siblingSubscriptions, invalidateFormula);
     
-    if (cell.scriptElement != null) cell.scriptElement.remove();
+    if (formula.appliesTo.scriptElement != null) formula.appliesTo.scriptElement.remove();
     
     try {
-      cell.scriptElement = new ScriptElement()..innerHtml = jsf.value;
+      formula.appliesTo.scriptElement = new ScriptElement()..innerHtml = jsf.value;
       
-      document.head.append(cell.scriptElement);
+      document.head.append(formula.appliesTo.scriptElement);
       
-      cell.value = context.callMethod('__${cell.id}', jsf.arguments).toString();
+      formula.appliesTo.value = context.callMethod('__${formula.appliesTo.id}', jsf.arguments).toString();
     } catch (error) {
-      cell.value = null;
+      formula.appliesTo.value = null;
     }
   }
   
@@ -94,6 +96,10 @@ class CellItemRenderer<D extends Cell<String>> extends EditableLabelItemRenderer
   }
   
   void _invalidateSelection() {
-    cssClasses = (data != null && data.selected) ? const <String>['cell-selected'] : null;
+    if (data != null) {
+      if (data.focused) cssClasses = const <String>['cell-selected', 'focused'];
+      else if (data.selected) cssClasses = const <String>['cell-selected'];
+      else cssClasses = null;
+    }
   }
 }

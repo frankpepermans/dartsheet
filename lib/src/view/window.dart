@@ -41,11 +41,14 @@ class Window extends DartFlexRootContainer {
   }
   
   void _handleMethodField(FrameworkEvent event) {
-    if (sheet.selectedCells != null) sheet.selectedCells.forEach((Cell cell) => cell.formula = methodField.text);
+    if (sheet.selectedCells != null && sheet.selectedCells.isNotEmpty) sheet.selectedCells.forEach((Cell cell) {
+      cell.formula.originator = sheet.selectedCells.first;
+      cell.formula.body = methodField.text;
+    });
   }
   
   void _handleCellSelection(FrameworkEvent<List<Cell>> event) {
-    if (event.relatedObject.isNotEmpty) methodField.text = event.relatedObject.first.formula;
+    if (event.relatedObject.isNotEmpty) methodField.text = event.relatedObject.first.formula.body;
     else methodField.text = '';
   }
 }

@@ -8,6 +8,7 @@ import 'package:observe/observe.dart';
 
 part 'model/cell.dart';
 part 'model/row.dart';
+part 'model/formula.dart';
 
 String toCellIdentity(int row, int col) {
   String id;
