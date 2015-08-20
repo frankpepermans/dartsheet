@@ -89,6 +89,7 @@ class Formula extends EventDispatcherImpl {
       final String colPart = re.firstMatch(id).group(0);
       
       if (colPart.length == 1) return colPart.codeUnitAt(0) - 65;
+      else return ((colPart.codeUnitAt(0) - 64) * 26) + colPart.codeUnitAt(1) - 65;
     }
     
     return -1;
