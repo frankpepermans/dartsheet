@@ -103,6 +103,24 @@ class WorkSheet extends Group {
     addComponent(gridGroup);
   }
   
+  Future invalidateFormula(Formula formula) async {
+    await formula.appliesTo.clearSiblingSubscriptions();
+    
+    final JsFunctionBody jsf = formula.getJavaScriptFunctionBody(spreadsheet.dataProvider, formula.appliesTo.siblingSubscriptions, invalidateFormula);
+    
+    if (formula.appliesTo.scriptElement != null) formula.appliesTo.scriptElement.remove();
+    
+    try {
+      formula.appliesTo.scriptElement = new ScriptElement()..innerHtml = jsf.value;
+      
+      document.head.append(formula.appliesTo.scriptElement);
+      
+      formula.appliesTo.value = context.callMethod('__${formula.appliesTo.id}', jsf.arguments).toString();
+    } catch (error) {
+      formula.appliesTo.value = null;
+    }
+  }
+  
   //---------------------------------
   //
   // Protected methods
@@ -149,6 +167,8 @@ class WorkSheet extends Group {
     final Cell<dynamic> cell = new Cell<dynamic>(id, _spreadsheetCells.length, rowIndex, colIndex, null);
     
     _spreadsheetCells.add(cell);
+    
+    cell.formula.onBodyChanged.listen((FrameworkEvent<String> event) => invalidateFormula(event.currentTarget as Formula));
     
     return cell;
   }

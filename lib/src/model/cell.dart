@@ -14,6 +14,7 @@ class Cell<V> extends EventDispatcherImpl {
   
   final String id;
   final int globalIndex, rowIndex, colIndex;
+  final List<StreamSubscription> siblingSubscriptions = <StreamSubscription>[];
   
   ScriptElement scriptElement;
   
@@ -87,4 +88,10 @@ class Cell<V> extends EventDispatcherImpl {
   // Public methods
   //
   //---------------------------------
+  
+  Future clearSiblingSubscriptions() async {
+    await siblingSubscriptions.forEach((StreamSubscription S) async => await S.cancel());
+        
+    siblingSubscriptions.clear();
+  }
 }

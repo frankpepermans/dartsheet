@@ -31,9 +31,7 @@ class RowItemRenderer<D extends Row<Cell<dynamic>>> extends ItemRenderer<Row<Cel
     if (value != _highlighted) {
       _highlighted = value;
       
-      cssClasses = value ? const <String>['row-highlighted'] : null;
-      
-      rowOffset.last.then(_update);
+      invalidateData();
       
       notify(new FrameworkEvent<bool>('highlightedChanged', relatedObject: value));
     }
@@ -75,13 +73,15 @@ class RowItemRenderer<D extends Row<Cell<dynamic>>> extends ItemRenderer<Row<Cel
       ..percentWidth = 100.0
       ..percentHeight = 100.0;
     
-    rowOffset.last.then(_update);
-    
     addComponent(button);
   }
   
   @override
-  void invalidateData() {}
+  void invalidateData() {
+    rowOffset.last.then(_update);
+    
+    cssClasses = _highlighted ? const <String>['row-highlighted'] : null;
+  }
   
   void _update(int currentRowOffset) {
     if (data != null && button != null) button.label = (data.rowIndex + currentRowOffset + 1).toString();
