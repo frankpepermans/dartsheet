@@ -174,7 +174,7 @@ class WorkSheet extends Group {
   }
   
   void _updateRowIndices([FrameworkEvent event]) {
-    columnList.offsetStream.add(spreadsheet.scrollPosition ~/ spreadsheet.rowHeight);
+    columnList.currentRowOffset = spreadsheet.scrollPosition ~/ spreadsheet.rowHeight;
     
     if (spreadsheet.scrollPosition > (spreadsheet.rowHeight * spreadsheet.dataProvider.length - spreadsheet.height) * .95) 
       spreadsheet.dataProvider.addAll(_createNewDataProvider(spreadsheet.dataProvider.length));

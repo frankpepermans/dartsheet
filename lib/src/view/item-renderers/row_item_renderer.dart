@@ -1,8 +1,6 @@
 part of dartsheet.view;
 
 class RowItemRenderer<D extends Row<Cell<dynamic>>> extends ItemRenderer<Row<Cell<dynamic>>> {
-  
-  @event Stream<FrameworkEvent> onHighlightedChanged;
 
   //---------------------------------
   //
@@ -16,19 +14,7 @@ class RowItemRenderer<D extends Row<Cell<dynamic>>> extends ItemRenderer<Row<Cel
   //
   //---------------------------------
   
-  final Stream<int> rowOffset;
-  
   Button button;
-  
-  //---------------------------------
-  // data
-  //---------------------------------
-  
-  void set data(D value) {
-    super.data = value;
-    
-    rowOffset.last.then(_update);
-  }
 
   //---------------------------------
   //
@@ -36,11 +22,9 @@ class RowItemRenderer<D extends Row<Cell<dynamic>>> extends ItemRenderer<Row<Cel
   //
   //---------------------------------
 
-  RowItemRenderer(this.rowOffset) : super() {
-    rowOffset.listen(_update);
-  }
+  RowItemRenderer() : super();
 
-  static RowItemRenderer construct(Stream<int> rowOffset) => new RowItemRenderer(rowOffset);
+  static RowItemRenderer construct() => new RowItemRenderer();
 
   //---------------------------------
   //
@@ -61,14 +45,20 @@ class RowItemRenderer<D extends Row<Cell<dynamic>>> extends ItemRenderer<Row<Cel
   
   @override
   void invalidateData() {
-    rowOffset.last.then(_update);
-  }
-  
-  void _update(int currentRowOffset) {
     final ColumnList columnList = owner as ColumnList;
     
-    if (data != null && button != null) button.label = (data.rowIndex + currentRowOffset + 1).toString();
-    
-    cssClasses = (columnList != null && data != null && columnList.highlightRange.contains(data.rowIndex + currentRowOffset)) ? const <String>['row-highlighted'] : null;
+    if (data != null) {
+      if ( button != null) {
+        button.label = (data.rowIndex + columnList.currentRowOffset + 1).toString();
+           
+        button.cssClasses = (columnList != null && columnList.highlightRange.contains(data.rowIndex + columnList.currentRowOffset)) ? const <String>['row-highlighted'] : null;
+      }
+    } else {
+      if ( button != null) {
+        button.label = '';
+        
+        button.cssClasses = null;
+      }
+    }
   }
-}
+} 
