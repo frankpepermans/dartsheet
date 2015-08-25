@@ -1,6 +1,6 @@
 part of dartsheet.view;
 
-class RowItemRenderer<D extends Row<Cell<dynamic>>> extends ItemRenderer<Row<Cell<dynamic>>> {
+class RowItemRenderer<D extends Row<Cell>> extends ItemRenderer<Row<Cell>> {
 
   //---------------------------------
   //
@@ -15,6 +15,21 @@ class RowItemRenderer<D extends Row<Cell<dynamic>>> extends ItemRenderer<Row<Cel
   //---------------------------------
   
   Button button;
+  
+  //---------------------------------
+  // data
+  //---------------------------------
+  
+  @override
+  set data(D value) {
+    streamSubscriptionManager.flushIdent('highlight-listener');
+    
+    super.data = value;
+    
+    if (value != null) {
+      streamSubscriptionManager.add('highlight-listener', value.onHighlightedChanged.listen((_) => invalidateData()));
+    }
+  }
 
   //---------------------------------
   //
@@ -45,16 +60,12 @@ class RowItemRenderer<D extends Row<Cell<dynamic>>> extends ItemRenderer<Row<Cel
   
   @override
   void invalidateData() {
-    final ColumnList columnList = owner as ColumnList;
-    
-    if (data != null) {
-      if ( button != null) {
-        button.label = (data.rowIndex + columnList.currentRowOffset + 1).toString();
-           
-        button.cssClasses = (columnList != null && columnList.highlightRange.contains(data.rowIndex + columnList.currentRowOffset)) ? const <String>['row-highlighted'] : null;
-      }
-    } else {
-      if ( button != null) {
+    if ( button != null) {
+      if (data != null) {
+        button.label = (data.rowIndex + 1).toString();
+        
+        button.cssClasses = data.highlighted ? const <String>['row-highlighted'] : null;
+      } else {
         button.label = '';
         
         button.cssClasses = null;

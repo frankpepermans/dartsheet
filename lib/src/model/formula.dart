@@ -3,9 +3,9 @@ part of dartsheet.model;
 class Formula extends EventDispatcherImpl {
   
   @event Stream<FrameworkEvent<String>> onBodyChanged;
-  @event Stream<FrameworkEvent<Cell<dynamic>>> onOriginatorChanged;
+  @event Stream<FrameworkEvent<Cell>> onOriginatorChanged;
   
-  final Cell<dynamic> appliesTo;
+  final Cell appliesTo;
   
   String _body;
   
@@ -18,20 +18,20 @@ class Formula extends EventDispatcherImpl {
     }
   }
   
-  Cell<dynamic> _originator;
+  Cell _originator;
   
-  Cell<dynamic> get originator => _originator;
-  void set originator(Cell<dynamic> value) {
+  Cell get originator => _originator;
+  void set originator(Cell value) {
     if (value != _originator) {
       _originator = value;
       
-      notify(new FrameworkEvent<Cell<dynamic>>('originatorChanged', relatedObject: value));
+      notify(new FrameworkEvent<Cell>('originatorChanged', relatedObject: value));
     }
   }
   
   Formula(this.appliesTo);
   
-  JsFunctionBody getJavaScriptFunctionBody(ObservableList<Row<Cell<dynamic>>> dataProvider, List<StreamSubscription> streamManager, void streamHandler(Formula formula)) {
+  JsFunctionBody getJavaScriptFunctionBody(ObservableList<Row<Cell>> dataProvider, List<StreamSubscription> streamManager, void streamHandler(Formula formula)) {
     if (_body == null) return null;
     
     final RegExp re = new RegExp(r'#[A-Z]+[\d]+');
@@ -52,10 +52,10 @@ class Formula extends EventDispatcherImpl {
       int rowIndex = toRowIndex(cellId);
       
       if (rowIndex >= 0) {
-        final Row<Cell<dynamic>> row = dataProvider[rowIndex];
+        final Row<Cell> row = dataProvider[rowIndex];
         
         for (int j=0, cells=row.cells.length; j<cells; j++) {
-          Cell<dynamic> dpCell = row.cells[j];
+          Cell dpCell = row.cells[j];
           
           if (dpCell.id == cellId) {
             if (dpCell.value == null) jsf.arguments.add(null);

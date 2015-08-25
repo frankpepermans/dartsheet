@@ -19,16 +19,8 @@ class WorkSheet extends Group {
   //
   //---------------------------------
   
-  ColumnList columnList;
+  ListRenderer columnList;
   Spreadsheet spreadsheet;
-  
-  //---------------------------------
-  // spreadsheetCells
-  //---------------------------------
-  
-  final List<Cell> _spreadsheetCells = <Cell>[];
-  
-  List<Cell> get spreadsheetCells => _spreadsheetCells;
   
   //---------------------------------
   // selectedCells
@@ -54,8 +46,6 @@ class WorkSheet extends Group {
   
   @override
   void createChildren() {
-    final ObservableList<Row<Cell<dynamic>>> dataProvider = _createNewDataProvider(0);
-    
     super.createChildren();
     
     final HGroup gridGroup = new HGroup(gap: 0)
@@ -71,10 +61,17 @@ class WorkSheet extends Group {
       ..percentWidth = 100.0
       ..height = 23;
     
-    columnList = new ColumnList()
+    columnList = new ListRenderer()
       ..rowHeight = 23
-      ..dataProvider = dataProvider
-      ..highlightRange = <int>[];
+      ..percentWidth = 100.0
+      ..percentHeight = 100.0
+      ..autoManageScrollBars = false
+      ..horizontalScrollPolicy = ScrollPolicy.NONE
+      ..verticalScrollPolicy = ScrollPolicy.NONE
+      ..itemRendererFactory = new ItemRendererFactory<RowItemRenderer<Row<Cell>>>(
+          constructorMethod: RowItemRenderer.construct, 
+          className: 'row-item-renderer'
+      );
     
     columnListGroup.addComponent(spacer);
     columnListGroup.addComponent(columnList);
@@ -90,7 +87,6 @@ class WorkSheet extends Group {
       ..columnSpacing = 0
       ..rowSpacing = 0
       ..autoScrollOnDataChange = true
-      ..dataProvider = dataProvider
       ..columns = _createGridColumns()
       ..useEvenOdd = false
       ..onListScrollPositionChanged.listen(_updateRowIndices)
@@ -101,6 +97,10 @@ class WorkSheet extends Group {
     gridGroup.addComponent(spreadsheet);
     
     addComponent(gridGroup);
+    
+    spreadsheet.dataProvider = _createNewDataProvider(0);
+    
+    _updateRowIndices();
   }
   
   Future invalidateFormula(Formula formula) async {
@@ -127,9 +127,9 @@ class WorkSheet extends Group {
   //
   //---------------------------------
   
-  ObservableList<Row<Cell<dynamic>>> _createNewDataProvider(int startRowIndex) =>
-    new ObservableList<Row<Cell<dynamic>>>.from(
-        new List<Row<Cell<dynamic>>>.generate(initRows, (int rowIndex) => _createRow(startRowIndex + rowIndex))
+  ObservableList<Row<Cell>> _createNewDataProvider(int startRowIndex) =>
+    new ObservableList<Row<Cell>>.from(
+        new List<Row<Cell>>.generate(initRows, (int rowIndex) => _createRow(startRowIndex + rowIndex))
     );
   
   ObservableList<DataGridColumn> _createGridColumns() {
@@ -139,14 +139,11 @@ class WorkSheet extends Group {
         
         if (i >= 26 ) id = new String.fromCharCodes(<int>[64 + i ~/ 26, 65 + i - 26 * (i ~/ 26)]);
         else id = new String.fromCharCode(65 + i);
-        
-        final Symbol S = new Symbol(id);
       
         return new CellDataGridColumn()
-          ..field = S
           ..width = 120
           ..minWidth = 20
-          ..headerData = new HeaderData('', S, id, '')
+          ..headerData = new HeaderData('', null, id, '')
           ..headerItemRendererFactory = new ItemRendererFactory<HeaderItemRenderer>(constructorMethod: HeaderItemRenderer.construct)
           ..columnItemRendererFactory = new ItemRendererFactory<CellItemRenderer<Cell<String>>>(constructorMethod: CellItemRenderer.construct);
       })
@@ -155,18 +152,18 @@ class WorkSheet extends Group {
     return list;
   }
   
-  Row<Cell<dynamic>> _createRow(int rowIndex) {
-    final Row<Cell<dynamic>> row = new Row<Cell<dynamic>>(rowIndex);
+  Row<Cell> _createRow(int rowIndex) {
+    final Row<Cell> row = new Row<Cell>(rowIndex);
     
     for (int i=0; i<initCols; i++) row.cells.add(_createCell(toCellIdentity(rowIndex, i), rowIndex, i));
     
     return row;
   }
   
-  Cell<dynamic> _createCell(String id, int rowIndex, int colIndex) {
-    final Cell<dynamic> cell = new Cell<dynamic>(id, _spreadsheetCells.length, rowIndex, colIndex, null);
+  Cell _createCell(String id, int rowIndex, int colIndex) {
+    final Cell cell = new Cell(id, spreadsheet.cells.length, rowIndex, colIndex, null);
     
-    _spreadsheetCells.add(cell);
+    spreadsheet.cells.add(cell);
     
     cell.formula.onBodyChanged.listen((FrameworkEvent<String> event) => invalidateFormula(event.currentTarget as Formula));
     
@@ -174,10 +171,14 @@ class WorkSheet extends Group {
   }
   
   void _updateRowIndices([FrameworkEvent event]) {
-    columnList.currentRowOffset = spreadsheet.scrollPosition ~/ spreadsheet.rowHeight;
+    final int startIndex = spreadsheet.scrollPosition ~/ spreadsheet.rowHeight;
     
     if (spreadsheet.scrollPosition > (spreadsheet.rowHeight * spreadsheet.dataProvider.length - spreadsheet.height) * .95) 
       spreadsheet.dataProvider.addAll(_createNewDataProvider(spreadsheet.dataProvider.length));
+    
+    columnList.dataProvider = new ObservableList<Row<Cell>>.from(
+        spreadsheet.dataProvider.sublist(startIndex)
+    );
   }
   
   void _handleNewRowRenderer(FrameworkEvent<DataGridItemRenderer> event) {
@@ -227,11 +228,14 @@ class WorkSheet extends Group {
   
   void _cleanCurrentSelection() {
     if (_selectedCells != null) _selectedCells.forEach((Cell cell) => cell.selected = false);
+    
+    spreadsheet.headerItemRenderers.forEach((IHeaderItemRenderer R) => R.headerData.highlighted = false);
+    spreadsheet.dataProvider.forEach((Row<Cell> R) => R.highlighted = false);
   }
   
   void _updateCurrentSelection(Cell minCell, Cell maxCell) {
-    final List<int> highlightedRows = <int>[];
-    final List<int> highlightedCols = <int>[];
+    IHeaderItemRenderer headerRenderer;
+    Row<Cell> row;
     Cell cell;
     
     _selectedCells = <Cell>[];
@@ -252,7 +256,9 @@ class WorkSheet extends Group {
     final int endIndex = maxRowIndex * this.initCols + maxColIndex;
     
     for (int i=startIndex; i<=endIndex; i++) {
-      cell = _spreadsheetCells[i];
+      cell = spreadsheet.cells[i];
+      row = spreadsheet.dataProvider[cell.rowIndex];
+      headerRenderer = spreadsheet.headerItemRenderers[cell.colIndex];
       
       if (
           (cell.rowIndex >= minRowIndex && cell.rowIndex <= maxRowIndex) &&
@@ -260,15 +266,12 @@ class WorkSheet extends Group {
       ) {
         cell.selected = true;
         
-        if (!highlightedRows.contains(cell.rowIndex)) highlightedRows.add(cell.rowIndex);
-        if (!highlightedCols.contains(cell.colIndex)) highlightedCols.add(cell.colIndex);
+        row.highlighted = true;
+        headerRenderer.headerData.highlighted = true;
         
         _selectedCells.add(cell);
       }
     }
-    
-    columnList.highlightRange = highlightedRows;
-    spreadsheet.highlightRange = highlightedCols;
     
     _updateRowIndices();
     

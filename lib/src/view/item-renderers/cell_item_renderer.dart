@@ -61,10 +61,7 @@ class CellItemRenderer<D extends Cell<String>> extends EditableLabelItemRenderer
   
   @override
   void textArea_onTextChangedHandler(FrameworkEvent Event) {
-    if (
-        (data != null) &&
-        (field != null)
-    ) data.value = textArea.text;
+    if (data != null) data.value = textArea.text;
   }
   
   void _invalidateSelection() {
