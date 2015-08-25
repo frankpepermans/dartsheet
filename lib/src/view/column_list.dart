@@ -44,7 +44,7 @@ class ColumnList extends ListRenderer {
   
   void _invalidateHighlight(int currentRowOffset) {
     if (itemRenderers != null && _highlightRange != null) itemRenderers.forEach((RowItemRenderer<Row<Cell<dynamic>>> renderer) {
-      renderer.highlighted = _highlightRange.contains(renderer.data.rowIndex + currentRowOffset);
+      renderer.invokeLaterSingle('invalidateData', renderer.invalidateData);
     });
   }
 }

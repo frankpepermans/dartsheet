@@ -21,23 +21,6 @@ class RowItemRenderer<D extends Row<Cell<dynamic>>> extends ItemRenderer<Row<Cel
   Button button;
   
   //---------------------------------
-  // highlighted
-  //---------------------------------
-  
-  bool _highlighted = false;
-  
-  bool get highlighted => _highlighted;
-  void set highlighted(bool value) {
-    if (value != _highlighted) {
-      _highlighted = value;
-      
-      invalidateData();
-      
-      notify(new FrameworkEvent<bool>('highlightedChanged', relatedObject: value));
-    }
-  }
-  
-  //---------------------------------
   // data
   //---------------------------------
   
@@ -79,11 +62,13 @@ class RowItemRenderer<D extends Row<Cell<dynamic>>> extends ItemRenderer<Row<Cel
   @override
   void invalidateData() {
     rowOffset.last.then(_update);
-    
-    cssClasses = _highlighted ? const <String>['row-highlighted'] : null;
   }
   
   void _update(int currentRowOffset) {
+    final ColumnList columnList = owner as ColumnList;
+    
     if (data != null && button != null) button.label = (data.rowIndex + currentRowOffset + 1).toString();
+    
+    cssClasses = (columnList != null && data != null && columnList.highlightRange.contains(data.rowIndex + currentRowOffset)) ? const <String>['row-highlighted'] : null;
   }
 }

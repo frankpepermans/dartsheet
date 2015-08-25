@@ -54,8 +54,8 @@ class Formula extends EventDispatcherImpl {
       if (rowIndex >= 0) {
         final Row<Cell<dynamic>> row = dataProvider[rowIndex];
         
-        for (int j=0, cells=row.length; j<cells; j++) {
-          Cell<dynamic> dpCell = row[j];
+        for (int j=0, cells=row.cells.length; j<cells; j++) {
+          Cell<dynamic> dpCell = row.cells[j];
           
           if (dpCell.id == cellId) {
             if (dpCell.value == null) jsf.arguments.add(null);

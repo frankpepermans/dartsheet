@@ -142,7 +142,7 @@ class WorkSheet extends Group {
         
         final Symbol S = new Symbol(id);
       
-        return new DataGridColumn()
+        return new CellDataGridColumn()
           ..field = S
           ..width = 120
           ..minWidth = 20
@@ -158,7 +158,7 @@ class WorkSheet extends Group {
   Row<Cell<dynamic>> _createRow(int rowIndex) {
     final Row<Cell<dynamic>> row = new Row<Cell<dynamic>>(rowIndex);
     
-    for (int i=0; i<initCols; i++) row.add(_createCell(toCellIdentity(rowIndex, i), rowIndex, i));
+    for (int i=0; i<initCols; i++) row.cells.add(_createCell(toCellIdentity(rowIndex, i), rowIndex, i));
     
     return row;
   }
