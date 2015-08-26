@@ -144,8 +144,8 @@ class WorkSheet extends Group {
           ..width = 120
           ..minWidth = 20
           ..headerData = new HeaderData('', null, id, '')
-          ..headerItemRendererFactory = new ItemRendererFactory<HeaderItemRenderer>(constructorMethod: HeaderItemRenderer.construct)
-          ..columnItemRendererFactory = new ItemRendererFactory<CellItemRenderer<Cell<String>>>(constructorMethod: CellItemRenderer.construct);
+          ..headerItemRendererFactory = new ItemRendererFactory<HeaderItemRenderer<IHeaderData>>(constructorMethod: HeaderItemRenderer.construct)
+          ..columnItemRendererFactory = new ItemRendererFactory<CellItemRenderer<Cell>>(constructorMethod: CellItemRenderer.construct);
       })
     );
     
