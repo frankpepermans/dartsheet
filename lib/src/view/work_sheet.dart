@@ -143,8 +143,8 @@ class WorkSheet extends Group {
         return new CellDataGridColumn()
           ..width = 120
           ..minWidth = 20
-          ..headerData = new HeaderData('', null, id, '')
-          ..headerItemRendererFactory = new ItemRendererFactory<HeaderItemRenderer<IHeaderData>>(constructorMethod: HeaderItemRenderer.construct)
+          ..headerData = new HeaderDataImpl('', null, id, '')
+          ..headerItemRendererFactory = new ItemRendererFactory<HeaderItemRenderer<HeaderData>>(constructorMethod: HeaderItemRenderer.construct)
           ..columnItemRendererFactory = new ItemRendererFactory<CellItemRenderer<Cell>>(constructorMethod: CellItemRenderer.construct);
       })
     );
