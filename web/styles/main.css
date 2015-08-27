@@ -139,6 +139,10 @@ input[type=number]::-webkit-outer-spin-button {
   color: #fff;
 }
 
+.header-in-resize-mode {
+  cursor: e-resize !important;
+}
+
 .item-renderer {
           box-sizing:border-box;
      -moz-box-sizing:border-box;
