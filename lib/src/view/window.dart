@@ -51,6 +51,8 @@ class Window extends DartFlexRootContainer {
   void _handleCellSelection(FrameworkEvent<List<Cell>> event) {
     methodField.enabled = true;
     
+    if (event.relatedObject.length > 1) return;
+    
     if (event.relatedObject.isNotEmpty) methodField.text = event.relatedObject.first.formula.body;
     else methodField.text = '';
   }

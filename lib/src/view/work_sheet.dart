@@ -78,9 +78,9 @@ class WorkSheet extends Group {
     
     spreadsheet = new Spreadsheet()
       ..cssClasses = const <String>[]
+      ..allowHeaderColumnSorting = false
       ..percentWidth = 100.0
       ..percentHeight = 100.0
-      ..allowHeaderColumnSorting = true
       ..allowMultipleSelection = true
       ..headerHeight = 24
       ..rowHeight = columnList.rowHeight
