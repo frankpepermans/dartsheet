@@ -68,6 +68,7 @@ class WorkSheet extends Group {
       ..autoManageScrollBars = false
       ..horizontalScrollPolicy = ScrollPolicy.NONE
       ..verticalScrollPolicy = ScrollPolicy.NONE
+      ..lockIndex = 2
       ..itemRendererFactory = new ItemRendererFactory<RowItemRenderer<Row<Cell>>>(
           constructorMethod: RowItemRenderer.construct, 
           className: 'row-item-renderer'
@@ -89,9 +90,12 @@ class WorkSheet extends Group {
       ..autoScrollOnDataChange = true
       ..columns = _createGridColumns()
       ..useEvenOdd = false
+      ..rowLockIndex = 2
+      ..columnLockIndex = 2
       ..onListScrollPositionChanged.listen(_updateRowIndices)
       ..onHeightChanged.listen(_updateRowIndices)
-      ..onRendererAdded.listen(_handleNewRowRenderer);
+      ..onRendererAdded.listen(_handleNewRowRenderer)
+      ..onRowLockIndexChanged.listen((FrameworkEvent<int> event) => columnList.lockIndex = event.relatedObject);
     
     gridGroup.addComponent(columnListGroup);
     gridGroup.addComponent(spreadsheet);
@@ -176,9 +180,11 @@ class WorkSheet extends Group {
     if (spreadsheet.scrollPosition > (spreadsheet.rowHeight * spreadsheet.dataProvider.length - spreadsheet.height) * .95) 
       spreadsheet.dataProvider.addAll(_createNewDataProvider(spreadsheet.dataProvider.length));
     
-    columnList.dataProvider = new ObservableList<Row<Cell>>.from(
-        spreadsheet.dataProvider.sublist(startIndex)
-    );
+    final List<Row<Cell>> columnListDataProvider = new List<Row<Cell>>.generate(columnList.lockIndex, (int i) => spreadsheet.dataProvider[i]);
+    
+    columnListDataProvider.addAll(spreadsheet.dataProvider.sublist(startIndex + ((columnList.lockIndex >= 0) ? columnList.lockIndex : 0)));
+    
+    columnList.dataProvider = new ObservableList<Row<Cell>>.from(columnListDataProvider);
   }
   
   void _handleNewRowRenderer(FrameworkEvent<DataGridItemRenderer> event) {
