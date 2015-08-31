@@ -103,13 +103,18 @@ input[type=number]::-webkit-outer-spin-button {
   margin: 0; 
 }
 
+.handle-bar {
+  background-color: #ddd;
+  z-index: 999;
+}
+
 .button {
   outline: none;
-  background: none;
+  background: #eee;
   border: none;
-  color: inherit;
+  color: #000;
   font-family: inherit;
-  font-size:.9em;
+  font-size:.85em;
   font-weight: bold;
   padding: 0;
   text-decoration: none;
@@ -134,7 +139,7 @@ input[type=number]::-webkit-outer-spin-button {
   color: #fff;
 }
 
-.header-highlighted {
+.header-highlighted > button {
   background-color: #6a6;
   color: #fff;
 }
@@ -147,6 +152,7 @@ input[type=number]::-webkit-outer-spin-button {
           box-sizing:border-box;
      -moz-box-sizing:border-box;
   -webkit-box-sizing:border-box;
+  background: #fff;
   border-right: thin solid #ddd;
   border-bottom: thin solid #ddd;
   text-decoration: inherit;

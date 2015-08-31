@@ -21,6 +21,7 @@ class WorkSheet extends Group {
   
   ListRenderer columnList;
   Spreadsheet spreadsheet;
+  HandleBar hHandleBar, vHandleBar;
   
   //---------------------------------
   // selectedCells
@@ -95,10 +96,21 @@ class WorkSheet extends Group {
       ..onListScrollPositionChanged.listen(_updateRowIndices)
       ..onHeightChanged.listen(_updateRowIndices)
       ..onRendererAdded.listen(_handleNewRowRenderer)
-      ..onRowLockIndexChanged.listen((FrameworkEvent<int> event) => columnList.lockIndex = event.relatedObject);
+      ..onRowLockIndexChanged.listen((FrameworkEvent<int> event) => columnList.lockIndex = event.relatedObject)
+      ..onHeaderResize.listen((_) => invalidateLayout());
+    
+    hHandleBar = new HandleBar()
+      ..height = 4
+      ..includeInLayout = false;
+    
+    vHandleBar = new HandleBar()
+      ..width = 4
+      ..includeInLayout = false;
     
     gridGroup.addComponent(columnListGroup);
     gridGroup.addComponent(spreadsheet);
+    gridGroup.addComponent(hHandleBar);
+    gridGroup.addComponent(vHandleBar);
     
     addComponent(gridGroup);
     
@@ -125,6 +137,30 @@ class WorkSheet extends Group {
     }
   }
   
+  @override
+  void updateLayout() {
+    super.updateLayout();
+    
+    if (hHandleBar != null) {
+      hHandleBar.width = columnList.width + spreadsheet.width - 15;
+      hHandleBar.paddingLeft = 0;
+      hHandleBar.y = hHandleBar.paddingTop = spreadsheet.headerHeight + spreadsheet.rowLockIndex * spreadsheet.rowHeight - hHandleBar.height ~/ 2;
+    }
+    
+    if (vHandleBar != null) {
+      vHandleBar.height = spreadsheet.height - 15;
+      
+      vHandleBar.paddingTop = 0;
+      
+      int dx = - vHandleBar.width ~/ 2;
+      
+      for (int i=0; i<spreadsheet.columnLockIndex; i++)
+        dx += spreadsheet.columns[i].width;
+      
+      vHandleBar.x = vHandleBar.paddingLeft = columnList.x + columnList.width + dx;
+    }
+  }
+  
   //---------------------------------
   //
   // Protected methods
@@ -145,7 +181,7 @@ class WorkSheet extends Group {
         else id = new String.fromCharCode(65 + i);
       
         return new CellDataGridColumn()
-          ..width = 120
+          ..width = 60
           ..minWidth = 20
           ..headerData = new HeaderDataImpl('', null, id, '')
           ..headerItemRendererFactory = new ItemRendererFactory<HeaderItemRenderer<HeaderData>>(constructorMethod: HeaderItemRenderer.construct)

@@ -10,6 +10,7 @@ import 'package:observe/observe.dart';
 
 import 'model.dart';
 
+part 'view/handle_bar.dart';
 part 'view/window.dart';
 part 'view/work_sheet.dart';
 part 'view/spreadsheet.dart';

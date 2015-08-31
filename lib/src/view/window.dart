@@ -2,6 +2,8 @@ part of dartsheet.view;
 
 class Window extends DartFlexRootContainer {
 
+  HGroup menuGroup;
+  HGroup worksheetGroup;
   EditableTextArea methodField;
   WorkSheet sheet;
   
@@ -13,7 +15,15 @@ class Window extends DartFlexRootContainer {
   void createChildren() {
     super.createChildren();
     
-    layout = new HorizontalLayout();
+    layout = new VerticalLayout()..gap = 5;
+    
+    menuGroup = new HGroup()
+      ..percentWidth = 100.0
+      ..height = 110;
+    
+    worksheetGroup = new HGroup()
+      ..percentWidth = 100.0
+      ..percentHeight = 100.0;
     
     BoundsContainer methodFieldBC = new BoundsContainer()
       ..width = 360
@@ -37,8 +47,11 @@ class Window extends DartFlexRootContainer {
       ..percentHeight = 100.0
       ..onSelectedCellsChanged.listen(_handleCellSelection);
     
-    addComponent(sheet);
-    addComponent(methodFieldBC);
+    worksheetGroup.addComponent(sheet);
+    worksheetGroup.addComponent(methodFieldBC);
+    
+    addComponent(menuGroup);
+    addComponent(worksheetGroup);
   }
   
   void _handleMethodField(FrameworkEvent event) {
