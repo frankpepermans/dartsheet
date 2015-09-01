@@ -13,6 +13,8 @@ class WorkSheet extends Group {
   final int initRows;
   final int initCols;
   
+  operations.OperationsManager _operationsManager;
+  
   //---------------------------------
   //
   // Public properties
@@ -37,7 +39,9 @@ class WorkSheet extends Group {
   //
   //---------------------------------
   
-  WorkSheet(this.initRows, this.initCols) : super();
+  WorkSheet(this.initRows, this.initCols) : super() {
+    _operationsManager = new operations.OperationsManager(this);
+  }
   
   //---------------------------------
   //

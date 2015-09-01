@@ -9,6 +9,7 @@ import 'package:dart_flex/dart_flex.dart';
 import 'package:observe/observe.dart';
 
 import 'model.dart';
+import 'operations.dart' as operations;
 
 part 'view/handle_bar.dart';
 part 'view/window.dart';

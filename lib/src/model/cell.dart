@@ -83,6 +83,14 @@ class Cell<V> extends EventDispatcherImpl {
     value = initialValue;
   }
   
+  factory Cell.fromOtherCell(Cell cell) {
+    final Cell newCell = new Cell(cell.id, cell.globalIndex, cell.rowIndex, cell.colIndex, cell.value);
+    
+    newCell._formula = cell.formula.duplicate(newCell, cell.formula.originator);
+    
+    return newCell;
+  }
+  
   //---------------------------------
   //
   // Public methods
