@@ -104,8 +104,24 @@ input[type=number]::-webkit-outer-spin-button {
 }
 
 .handle-bar {
-  background-color: #ddd;
   z-index: 999;
+}
+
+.handle-bar-indicator {
+          box-sizing:border-box;
+     -moz-box-sizing:border-box;
+  -webkit-box-sizing:border-box;
+  background-color: #808080;
+  border: 1px solid #ddd;
+}
+
+.handle-bar-body {
+  background-color: #eee;
+  transition: background-color .2s ease-out;
+}
+
+.handle-bar-body:hover {
+  background-color: #aaf;
 }
 
 .button {

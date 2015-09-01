@@ -101,11 +101,19 @@ class WorkSheet extends Group {
     
     hHandleBar = new HandleBar()
       ..height = 4
-      ..includeInLayout = false;
+      ..orientation = 'horizontal'
+      ..includeInLayout = false
+      ..onDragStart.listen(_drag_startHandler)
+      ..onDrag.listen(_hHandleBar_dragHandler)
+      ..onDragEnd.listen(_hHandleBar_dragEndHandler);
     
     vHandleBar = new HandleBar()
       ..width = 4
-      ..includeInLayout = false;
+      ..orientation = 'vertical'
+      ..includeInLayout = false
+      ..onDragStart.listen(_drag_startHandler)
+      ..onDrag.listen(_vHandleBar_dragHandler)
+      ..onDragEnd.listen(_vHandleBar_dragEndHandler);
     
     gridGroup.addComponent(columnListGroup);
     gridGroup.addComponent(spreadsheet);
@@ -144,12 +152,13 @@ class WorkSheet extends Group {
     if (hHandleBar != null) {
       hHandleBar.width = columnList.width + spreadsheet.width - 15;
       hHandleBar.paddingLeft = 0;
+      hHandleBar.indicatorSize = columnList.width;
       hHandleBar.y = hHandleBar.paddingTop = spreadsheet.headerHeight + spreadsheet.rowLockIndex * spreadsheet.rowHeight - hHandleBar.height ~/ 2;
     }
     
     if (vHandleBar != null) {
       vHandleBar.height = spreadsheet.height - 15;
-      
+      vHandleBar.indicatorSize = spreadsheet.headerHeight;
       vHandleBar.paddingTop = 0;
       
       int dx = - vHandleBar.width ~/ 2;
@@ -318,5 +327,39 @@ class WorkSheet extends Group {
     _updateRowIndices();
     
     notify(new FrameworkEvent<List<Cell>>('selectedCellsChanged', relatedObject: _selectedCells));
+  }
+  
+  void _hHandleBar_dragHandler(FrameworkEvent<int> event) {
+    hHandleBar.paddingTop += event.relatedObject;
+  }
+  
+  void _drag_startHandler(FrameworkEvent event) {
+    spreadsheet.reflowManager.invalidateCSS(spreadsheet.control, 'pointer-events', 'none');
+  }
+  
+  void _vHandleBar_dragHandler(FrameworkEvent<int> event) {
+    vHandleBar.paddingLeft += event.relatedObject;
+  }
+  
+  void _hHandleBar_dragEndHandler(FrameworkEvent event) {
+    spreadsheet.rowLockIndex = ((hHandleBar.paddingTop - spreadsheet.headerHeight + hHandleBar.height ~/ 2) / spreadsheet.rowHeight).round();
+    
+    spreadsheet.reflowManager.invalidateCSS(spreadsheet.control, 'pointer-events', 'auto');
+    
+    invalidateLayout();
+  }
+  
+  void _vHandleBar_dragEndHandler(FrameworkEvent event) {
+    int tx = vHandleBar.width ~/ 2 + columnList.x + columnList.width;
+    final int dx = vHandleBar.paddingLeft - columnList.x - columnList.width;
+    int i = 0;
+    
+    while (tx < dx) tx += spreadsheet.columns[i++].width;
+    
+    spreadsheet.columnLockIndex = i;
+    
+    spreadsheet.reflowManager.invalidateCSS(spreadsheet.control, 'pointer-events', 'auto');
+        
+    invalidateLayout();
   }
 }
