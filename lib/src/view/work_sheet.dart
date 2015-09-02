@@ -143,7 +143,7 @@ class WorkSheet extends Group {
       
       document.head.append(formula.appliesTo.scriptElement);
       
-      formula.appliesTo.value = context.callMethod('__${formula.appliesTo.id}', jsf.arguments).toString();print(jsf.arguments);
+      formula.appliesTo.value = context.callMethod('__${formula.appliesTo.id}', jsf.arguments).toString();
     } catch (error) {
       formula.appliesTo.value = null;
     }

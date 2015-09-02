@@ -25,7 +25,9 @@ class OperationsManager {
       Cell currCell = _selectionSnapshot[i];
       Cell tmpCell = worksheet.getCell(currCell.rowIndex + dy, currCell.colIndex + dx);
       
-      tmpCell.copyFrom(currCell, offsetCell);
+      tmpCell.copyFrom(currCell, startCell, startCell.formula.body);
     }
+    
+    event.preventDefault();
   }
 }
