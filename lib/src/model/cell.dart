@@ -106,8 +106,18 @@ class Cell<V> extends EventDispatcherImpl {
   }
   
   Future clearSiblingSubscriptions() async {
-    await siblingSubscriptions.forEach((StreamSubscription S) async => await S.cancel());
+    await siblingSubscriptions.forEach((StreamSubscription S) async => await _cancelSubscription(S));
         
     siblingSubscriptions.clear();
+  }
+  
+  Future _cancelSubscription(StreamSubscription S) {
+    Future F;
+    
+    try {
+      F = S.cancel();
+    } catch (error) {}
+    
+    return F;
   }
 }
