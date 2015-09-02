@@ -97,12 +97,12 @@ class Cell<V> extends EventDispatcherImpl {
   //
   //---------------------------------
   
-  void copyFrom(Cell otherCell) {
-    _formula.originator = otherCell.formula.originator;
+  void copyFrom(Cell otherCell, Cell originator) {
+    _formula.originator = originator;
     
     value = otherCell.value;
     
-    _formula.body = _formula._localize(otherCell.formula.body);
+    _formula.body = otherCell.formula.body;
   }
   
   Future clearSiblingSubscriptions() async {
