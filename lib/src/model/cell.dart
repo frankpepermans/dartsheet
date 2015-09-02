@@ -86,7 +86,7 @@ class Cell<V> extends EventDispatcherImpl {
   factory Cell.fromOtherCell(Cell cell) {
     final Cell newCell = new Cell(cell.id, cell.globalIndex, cell.rowIndex, cell.colIndex, cell.value);
     
-    newCell._formula = cell.formula.duplicate(newCell, cell.formula.originator);
+    newCell._formula = new Formula.from(cell.formula, newCell);
     
     return newCell;
   }
@@ -96,6 +96,14 @@ class Cell<V> extends EventDispatcherImpl {
   // Public methods
   //
   //---------------------------------
+  
+  void copyFrom(Cell otherCell) {
+    _formula.originator = otherCell.formula.originator;
+    
+    value = otherCell.value;
+    
+    _formula.body = _formula._localize(otherCell.formula.body);
+  }
   
   Future clearSiblingSubscriptions() async {
     await siblingSubscriptions.forEach((StreamSubscription S) async => await S.cancel());

@@ -16,6 +16,16 @@ class OperationsManager {
   }
   
   void _document_pasteHandler(Event event) {
-    _selectionSnapshot.forEach((Cell cell) => print(cell.value));
+    final Cell startCell = _selectionSnapshot.first;
+    final Cell offsetCell = worksheet.selectedCells.first;
+    final int dx = offsetCell.colIndex - startCell.colIndex;
+    final int dy = offsetCell.rowIndex - startCell.rowIndex;
+    
+    for (int i=0, len=_selectionSnapshot.length; i<len; i++) {
+      Cell currCell = _selectionSnapshot[i];
+      Cell tmpCell = worksheet.getCell(currCell.rowIndex + dy, currCell.colIndex + dx);
+      
+      tmpCell.copyFrom(currCell);
+    }
   }
 }

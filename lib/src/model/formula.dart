@@ -31,14 +31,14 @@ class Formula extends EventDispatcherImpl {
   
   Formula(this.appliesTo);
   
-  Formula duplicate(Cell appliesTo, Cell originator) {
-    final Formula F = new Formula(appliesTo);
-    
-    F.body = _body;
-    F.originator = originator;
-    
-    return F;
-  }
+  factory Formula.from(Formula formula, Cell appliesTo) {
+      final Formula F = new Formula(appliesTo);
+      
+      F._originator = formula.originator;
+      F._body = formula.body;
+      
+      return F;
+    }
   
   JsFunctionBody getJavaScriptFunctionBody(ObservableList<Row<Cell>> dataProvider, List<StreamSubscription> streamManager, void streamHandler(Formula formula)) {
     if (_body == null) return null;

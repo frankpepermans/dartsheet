@@ -143,7 +143,7 @@ class WorkSheet extends Group {
       
       document.head.append(formula.appliesTo.scriptElement);
       
-      formula.appliesTo.value = context.callMethod('__${formula.appliesTo.id}', jsf.arguments).toString();
+      formula.appliesTo.value = context.callMethod('__${formula.appliesTo.id}', jsf.arguments).toString();print(jsf.arguments);
     } catch (error) {
       formula.appliesTo.value = null;
     }
@@ -173,6 +173,8 @@ class WorkSheet extends Group {
       vHandleBar.x = vHandleBar.paddingLeft = columnList.x + columnList.width + dx;
     }
   }
+  
+  Cell getCell(int row, int col) => (spreadsheet.dataProvider as ObservableList<Row<Cell>>)[row].cells[col];
   
   //---------------------------------
   //
