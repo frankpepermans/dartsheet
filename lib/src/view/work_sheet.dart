@@ -143,6 +143,7 @@ class WorkSheet extends VGroup {
       ..height = 60;
     
     valueEntry = new ValueEntry()
+      ..paddingLeft = 30
       ..percentWidth = 100.0
       ..percentHeight = 100.0
       ..onValueInput.listen(_valueField_inputHandler)

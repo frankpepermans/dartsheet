@@ -27,8 +27,10 @@ class Window extends DartFlexRootContainer {
       ..percentHeight = 100.0;
     
     methodFieldFloater = new FloatingWindow()
-      ..width = 400
-      ..height = 640
+      ..width = 640
+      ..height = 400
+      ..paddingLeft = 300
+      ..paddingTop = 300
       ..gap = 0
       ..includeInLayout = false
       ..visible = true
@@ -52,7 +54,7 @@ class Window extends DartFlexRootContainer {
     
     worksheetGroup.addComponent(sheet);
     
-    addComponent(menuGroup);
+    //addComponent(menuGroup);
     addComponent(worksheetGroup);
     
     methodFieldFloater.addComponent(methodField);
