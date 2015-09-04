@@ -2,8 +2,9 @@ part of dartsheet.view;
 
 class Window extends DartFlexRootContainer {
 
-  HGroup menuGroup;
+  Header menuGroup;
   HGroup worksheetGroup;
+  FloatingWindow methodFieldFloater;
   EditableTextArea methodField;
   WorkSheet sheet;
   
@@ -17,7 +18,7 @@ class Window extends DartFlexRootContainer {
     
     layout = new VerticalLayout()..gap = 5;
     
-    menuGroup = new HGroup()
+    menuGroup = new Header()
       ..percentWidth = 100.0
       ..height = 110;
     
@@ -25,33 +26,38 @@ class Window extends DartFlexRootContainer {
       ..percentWidth = 100.0
       ..percentHeight = 100.0;
     
-    BoundsContainer methodFieldBC = new BoundsContainer()
-      ..width = 360
-      ..percentHeight = 100.0
-      ..left = 5
-      ..right = 5
-      ..top = 5
-      ..bottom = 5;
+    methodFieldFloater = new FloatingWindow()
+      ..width = 400
+      ..height = 640
+      ..gap = 0
+      ..includeInLayout = false
+      ..visible = true
+      ..onClose.listen((FrameworkEvent event) => (event.currentTarget as FloatingWindow).visible = false);
     
     methodField = new EditableTextArea()
+      ..className = 'method-field'
       ..percentWidth = 100.0
       ..percentHeight = 100.0
       ..onTextChanged.listen(_handleMethodField)
       ..enabled = false;
     
-    methodFieldBC.body.addComponent(methodField);
-    
     sheet = new WorkSheet(160, 50)
       ..className = 'workbook'
       ..percentWidth = 100.0
       ..percentHeight = 100.0
-      ..onSelectedCellsChanged.listen(_handleCellSelection);
+      ..onSelectedCellsChanged.listen(_handleCellSelection)
+      ..onValueEntryFocus.listen(
+          (_) => methodFieldFloater.visible = true
+      );
     
     worksheetGroup.addComponent(sheet);
-    worksheetGroup.addComponent(methodFieldBC);
     
     addComponent(menuGroup);
     addComponent(worksheetGroup);
+    
+    methodFieldFloater.addComponent(methodField);
+    
+    addComponent(methodFieldFloater);
   }
   
   void _handleMethodField(FrameworkEvent event) {

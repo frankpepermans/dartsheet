@@ -1,8 +1,9 @@
 part of dartsheet.view;
 
-class WorkSheet extends Group {
+class WorkSheet extends VGroup {
   
   @event Stream<FrameworkEvent<List<Cell>>> onSelectedCellsChanged;
+  @event Stream<FrameworkEvent<List<Cell>>> onValueEntryFocus;
   
   //---------------------------------
   //
@@ -20,6 +21,8 @@ class WorkSheet extends Group {
   // Public properties
   //
   //---------------------------------
+  
+  ValueEntry valueEntry;
   
   ListRenderer columnList;
   Spreadsheet spreadsheet;
@@ -77,7 +80,8 @@ class WorkSheet extends Group {
       ..itemRendererFactory = new ItemRendererFactory<RowItemRenderer<Row<Cell>>>(
           constructorMethod: RowItemRenderer.construct, 
           className: 'row-item-renderer'
-      );
+      )
+      ..onWidthChanged.listen((_) => invalidateLayout());
     
     columnListGroup.addComponent(spacer);
     columnListGroup.addComponent(columnList);
@@ -124,11 +128,31 @@ class WorkSheet extends Group {
     gridGroup.addComponent(hHandleBar);
     gridGroup.addComponent(vHandleBar);
     
+    addComponent(createHeaderAndChildren());
     addComponent(gridGroup);
     
     spreadsheet.dataProvider = _createNewDataProvider(0);
     
     _updateRowIndices();
+  }
+  
+  HGroup createHeaderAndChildren() {
+    final HGroup headerGroup = new HGroup(gap: 0)
+      ..className = 'header'
+      ..percentWidth = 100.0
+      ..height = 60;
+    
+    valueEntry = new ValueEntry()
+      ..percentWidth = 100.0
+      ..percentHeight = 100.0
+      ..onValueInput.listen(_valueField_inputHandler)
+      ..onFocus.listen(
+          (_) => notify(new FrameworkEvent('valueEntryFocus'))
+      );
+    
+    headerGroup.addComponent(valueEntry);
+    
+    return headerGroup;
   }
   
   Future invalidateFormula(Formula formula) async {
@@ -332,6 +356,8 @@ class WorkSheet extends Group {
     
     _updateRowIndices();
     
+    valueEntry.value = _selectedCells.isNotEmpty ? _selectedCells.first.value : '';
+    
     notify(new FrameworkEvent<List<Cell>>('selectedCellsChanged', relatedObject: _selectedCells));
   }
   
@@ -340,7 +366,7 @@ class WorkSheet extends Group {
   }
   
   void _drag_startHandler(FrameworkEvent event) {
-    spreadsheet.reflowManager.invalidateCSS(spreadsheet.control, 'pointer-events', 'none');
+    reflowManager.invalidateCSS(spreadsheet.control, 'pointer-events', 'none');
   }
   
   void _vHandleBar_dragHandler(FrameworkEvent<int> event) {
@@ -350,7 +376,7 @@ class WorkSheet extends Group {
   void _hHandleBar_dragEndHandler(FrameworkEvent event) {
     spreadsheet.rowLockIndex = ((hHandleBar.paddingTop - spreadsheet.headerHeight + hHandleBar.height ~/ 2) / spreadsheet.rowHeight).round();
     
-    spreadsheet.reflowManager.invalidateCSS(spreadsheet.control, 'pointer-events', 'auto');
+    reflowManager.invalidateCSS(spreadsheet.control, 'pointer-events', 'auto');
     
     invalidateLayout();
   }
@@ -367,5 +393,10 @@ class WorkSheet extends Group {
     spreadsheet.reflowManager.invalidateCSS(spreadsheet.control, 'pointer-events', 'auto');
         
     invalidateLayout();
+  }
+  
+  void _valueField_inputHandler(FrameworkEvent<String> event) {
+    if (_selectedCells != null && _selectedCells.isNotEmpty)
+      _selectedCells.first.value = event.relatedObject;
   }
 }

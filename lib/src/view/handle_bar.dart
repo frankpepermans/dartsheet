@@ -85,7 +85,8 @@ class HandleBar extends Group {
     super.commitProperties();
     
     if (_isOrientationChanged) {
-      layout = (_orientation == 'horizontal') ? (new HorizontalLayout()..gap = 0) : (new VerticalLayout()..gap = 0);
+      if (_orientation == 'horizontal' && !(layout is HorizontalLayout)) layout = (new HorizontalLayout()..gap = 0);
+      if (_orientation == 'vertical' && !(layout is VerticalLayout)) layout = (new VerticalLayout()..gap = 0);
     }
     
     if (indicator != null) {

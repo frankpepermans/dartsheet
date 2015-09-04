@@ -142,12 +142,22 @@ input[type=number]::-webkit-outer-spin-button {
   color:#fff;
 }
 
+.header {
+}
+
 .workbook {
           box-sizing:border-box;
      -moz-box-sizing:border-box;
   -webkit-box-sizing:border-box;
   border-right: thin solid #ddd;
   background-color: #fff;
+}
+
+.value-field {
+          box-sizing:border-box;
+     -moz-box-sizing:border-box;
+  -webkit-box-sizing:border-box;
+  border-right: thin solid #ddd;
 }
 
 .row-highlighted {
@@ -367,4 +377,112 @@ select > option {
           padding: 0 0 0 2px;
           border: none;
           background: none;
+}
+
+.dropdown-input {
+  background-image: url("../assets/icons/format.png");
+  background-position: center;
+  background-repeat: no-repeat;
+  border-left: 1px solid #ccc;
+  border-right: none;
+  border-top: 1px solid #ccc;
+  border-bottom: 1px solid #ccc;
+          box-sizing:border-box;
+     -moz-box-sizing:border-box;
+  -webkit-box-sizing:border-box;
+  outline: none;
+  pointer-events: none;
+  font-size:0;
+  display:block;
+  line-height:0;
+}
+
+.dropdown-handle {
+  background-color: #aaa;
+  border-left: none;
+  border-right: 1px solid #ccc;
+  border-top: 1px solid #ccc;
+  border-bottom: 1px solid #ccc;
+  outline: none;
+  color: #fff;
+  font-size: .45em;
+  padding: 0;
+  margin: 0;
+}
+
+.dropdown-handle:hover {
+  background-color: #ccc;
+}
+
+.open {
+  background-color: #aaa;
+}
+
+.floating-window {
+  background-color: #fff;
+  position: fixed !important;
+  border: 1px solid #808080;
+  -webkit-box-shadow: 10px 10px 23px -8px rgba(0,0,0,0.64);
+     -moz-box-shadow: 10px 10px 23px -8px rgba(0,0,0,0.64);
+          box-shadow: 10px 10px 23px -8px rgba(0,0,0,0.64);
+  z-index: 10000;
+}
+
+.floating-window-header {
+  background-image: url("../assets/icons/draggable.png");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-color: #eee;
+  border: none;
+  cursor: move;
+}
+
+.floating-window-footer {
+  background-color: #eee;
+  border: none;
+}
+
+.floating-window-close-button {
+  outline: none;
+  background: #eee;
+  border: none;
+  color: #666;
+  font-family: inherit;
+  font-size:1.2em;
+  padding: 0;
+  text-decoration: none;
+  cursor: inherit;
+}
+
+.floating-window-close-button:hover {
+  background-color: #ccc;
+  transition: background-color .2s ease-out;
+}
+
+.floating-window-resize-handler {
+  background: none;
+  cursor: nw-resize;
+}
+
+.method-field {
+  border: none;
+  outline: none;
+}
+
+.dropdown-list {
+  position: fixed !important;
+  border: 1px solid #808080;
+  -webkit-box-shadow: 10px 10px 23px -8px rgba(0,0,0,0.64);
+     -moz-box-shadow: 10px 10px 23px -8px rgba(0,0,0,0.64);
+          box-shadow: 10px 10px 23px -8px rgba(0,0,0,0.64);
+  z-index: 10000;
+}
+
+.dropdown-list > div {
+  border: none;
+}
+
+.dropdown-list > div:hover {
+  background-color: #ccc;
+  border: none;
 }
