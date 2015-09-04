@@ -123,6 +123,8 @@ class HandleBar extends Group {
     );
     
     notify(new FrameworkEvent('dragStart'));
+    
+    event.relatedObject.preventDefault();
   }
   
   void _body_mouseMoveHandler(MouseEvent event) {
@@ -131,6 +133,8 @@ class HandleBar extends Group {
     } else {
       notify(new FrameworkEvent<int>('drag', relatedObject: event.movement.x));
     }
+    
+    event.preventDefault();
   }
   
   void _body_mouseUpHandler(MouseEvent event) {
@@ -138,5 +142,7 @@ class HandleBar extends Group {
     streamSubscriptionManager.flushIdent('body-mouse-up');
     
     notify(new FrameworkEvent('dragEnd'));
+    
+    event.preventDefault();
   }
 }

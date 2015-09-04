@@ -363,7 +363,7 @@ class WorkSheet extends VGroup {
   }
   
   void _hHandleBar_dragHandler(FrameworkEvent<int> event) {
-    hHandleBar.paddingTop += event.relatedObject;
+    hHandleBar.y = hHandleBar.paddingTop += event.relatedObject;
   }
   
   void _drag_startHandler(FrameworkEvent event) {
@@ -371,7 +371,7 @@ class WorkSheet extends VGroup {
   }
   
   void _vHandleBar_dragHandler(FrameworkEvent<int> event) {
-    vHandleBar.paddingLeft += event.relatedObject;
+    vHandleBar.x = vHandleBar.paddingLeft += event.relatedObject;
   }
   
   void _hHandleBar_dragEndHandler(FrameworkEvent event) {
