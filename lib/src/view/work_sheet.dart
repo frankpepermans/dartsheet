@@ -22,8 +22,6 @@ class WorkSheet extends VGroup {
   //
   //---------------------------------
   
-  ValueEntry valueEntry;
-  
   ListRenderer columnList;
   Spreadsheet spreadsheet;
   HandleBar hHandleBar, vHandleBar;
@@ -101,8 +99,8 @@ class WorkSheet extends VGroup {
       ..useEvenOdd = false
       ..rowLockIndex = 2
       ..columnLockIndex = 2
-      ..onListScrollPositionChanged.listen(_updateRowIndices)
-      ..onHeightChanged.listen(_updateRowIndices)
+      ..onListScrollPositionChanged.listen(_updateOverlay)
+      ..onHeightChanged.listen(_updateOverlay)
       ..onRendererAdded.listen(_handleNewRowRenderer)
       ..onRowLockIndexChanged.listen((FrameworkEvent<int> event) => columnList.lockIndex = event.relatedObject)
       ..onHeaderResize.listen((_) => invalidateLayout());
@@ -128,32 +126,11 @@ class WorkSheet extends VGroup {
     gridGroup.addComponent(hHandleBar);
     gridGroup.addComponent(vHandleBar);
     
-    addComponent(createHeaderAndChildren());
     addComponent(gridGroup);
     
     spreadsheet.dataProvider = _createNewDataProvider(0);
     
-    _updateRowIndices();
-  }
-  
-  HGroup createHeaderAndChildren() {
-    final HGroup headerGroup = new HGroup(gap: 0)
-      ..className = 'header'
-      ..percentWidth = 100.0
-      ..height = 60;
-    
-    valueEntry = new ValueEntry()
-      ..paddingLeft = 30
-      ..percentWidth = 100.0
-      ..percentHeight = 100.0
-      ..onValueInput.listen(_valueField_inputHandler)
-      ..onFocus.listen(
-          (_) => notify(new FrameworkEvent('valueEntryFocus'))
-      );
-    
-    headerGroup.addComponent(valueEntry);
-    
-    return headerGroup;
+    _updateOverlay();
   }
   
   Future invalidateFormula(Formula formula) async {
@@ -250,7 +227,11 @@ class WorkSheet extends VGroup {
     return cell;
   }
   
-  void _updateRowIndices([FrameworkEvent event]) {
+  void _updateOverlay([FrameworkEvent event]) {
+    _updateRowIndices();
+  }
+  
+  void _updateRowIndices() {
     final int startIndex = spreadsheet.scrollPosition ~/ spreadsheet.rowHeight;
     
     if (spreadsheet.scrollPosition > (spreadsheet.rowHeight * spreadsheet.dataProvider.length - spreadsheet.height) * .95) 
@@ -271,7 +252,7 @@ class WorkSheet extends VGroup {
     event.relatedObject.onMouseDown.listen(_handleCellDown);
     event.relatedObject.onMouseOver.listen(_handleCellEntry);
     
-    _updateRowIndices();
+    _updateOverlay();
   }
   
   Cell _selectionStartCell;
@@ -309,7 +290,10 @@ class WorkSheet extends VGroup {
   }
   
   void _cleanCurrentSelection() {
-    if (_selectedCells != null) _selectedCells.forEach((Cell cell) => cell.selected = false);
+    if (_selectedCells != null) _selectedCells.forEach((Cell cell) {
+      cell.selected = false;
+      cell.selectionOutline = 0;
+    });
     
     spreadsheet.headerItemRenderers.forEach((IHeaderItemRenderer R) => R.headerData.highlighted = false);
     spreadsheet.dataProvider.forEach((Row<Cell> R) => R.highlighted = false);
@@ -341,6 +325,7 @@ class WorkSheet extends VGroup {
       cell = spreadsheet.cells[i];
       row = spreadsheet.dataProvider[cell.rowIndex];
       headerRenderer = spreadsheet.headerItemRenderers[cell.colIndex];
+      int selectionOutline = 0;
       
       if (
           (cell.rowIndex >= minRowIndex && cell.rowIndex <= maxRowIndex) &&
@@ -352,12 +337,18 @@ class WorkSheet extends VGroup {
         headerRenderer.headerData.highlighted = true;
         
         _selectedCells.add(cell);
+        
+        if (cell.rowIndex == minRowIndex) selectionOutline |= 1;
+        if (cell.rowIndex == maxRowIndex) selectionOutline |= 4;
+        
+        if (cell.colIndex == minColIndex) selectionOutline |= 2;
+        if (cell.colIndex == maxColIndex) selectionOutline |= 8;
       }
+      
+      cell.selectionOutline = selectionOutline;
     }
     
-    _updateRowIndices();
-    
-    valueEntry.value = _selectedCells.isNotEmpty ? _selectedCells.first.value : '';
+    _updateOverlay();
     
     notify(new FrameworkEvent<List<Cell>>('selectedCellsChanged', relatedObject: _selectedCells));
   }
@@ -394,10 +385,5 @@ class WorkSheet extends VGroup {
     spreadsheet.reflowManager.invalidateCSS(spreadsheet.control, 'pointer-events', 'auto');
         
     invalidateLayout();
-  }
-  
-  void _valueField_inputHandler(FrameworkEvent<String> event) {
-    if (_selectedCells != null && _selectedCells.isNotEmpty)
-      _selectedCells.first.value = event.relatedObject;
   }
 }

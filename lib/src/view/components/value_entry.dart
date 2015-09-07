@@ -44,8 +44,8 @@ class ValueEntry extends HGroup {
     
     valueField = new EditableText()
       ..className = 'value-field'
-      ..width = 300
-      ..height = 26
+      ..percentWidth = 100.0
+      ..percentHeight = 100.0
       ..onInput.listen(_valueField_inputHandler)
       ..onControlChanged.listen(
           (FrameworkEvent<TextInputElement> event) => event.relatedObject.onFocus.listen(

@@ -5,6 +5,7 @@ class Window extends DartFlexRootContainer {
   Header menuGroup;
   HGroup worksheetGroup;
   FloatingWindow methodFieldFloater;
+  ValueEntry valueEntry;
   EditableTextArea methodField;
   WorkSheet sheet;
   
@@ -36,6 +37,14 @@ class Window extends DartFlexRootContainer {
       ..visible = true
       ..onClose.listen((FrameworkEvent event) => (event.currentTarget as FloatingWindow).visible = false);
     
+    valueEntry = new ValueEntry()
+      ..percentWidth = 100.0
+      ..percentHeight = 100.0
+      ..onValueInput.listen(_valueField_inputHandler)
+      ..onFocus.listen(
+          (_) => notify(new FrameworkEvent('valueEntryFocus'))
+      );
+    
     methodField = new EditableTextArea()
       ..className = 'method-field'
       ..percentWidth = 100.0
@@ -57,6 +66,7 @@ class Window extends DartFlexRootContainer {
     //addComponent(menuGroup);
     addComponent(worksheetGroup);
     
+    methodFieldFloater.addHeaderComponent(valueEntry);
     methodFieldFloater.addComponent(methodField);
     
     addComponent(methodFieldFloater);
@@ -70,11 +80,18 @@ class Window extends DartFlexRootContainer {
   }
   
   void _handleCellSelection(FrameworkEvent<List<Cell>> event) {
+    valueEntry.value = sheet.selectedCells.isNotEmpty ? sheet.selectedCells.first.value : '';
+    
     methodField.enabled = true;
     
     if (event.relatedObject.length > 1) return;
     
     if (event.relatedObject.isNotEmpty) methodField.text = event.relatedObject.first.formula.body;
     else methodField.text = '';
+  }
+  
+  void _valueField_inputHandler(FrameworkEvent<String> event) {
+    if (sheet.selectedCells != null && sheet.selectedCells.isNotEmpty)
+      sheet.selectedCells.first.value = event.relatedObject;
   }
 }

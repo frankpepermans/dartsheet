@@ -50,18 +50,6 @@ h1, p {
   background-color: #eeeef3;
 }
 
-#dart-flex-wrapper {
-  position: absolute;
-  left: 20px;
-  top: 80px;
-  bottom: 82px;
-  right: 20px;
-  overflow: hidden;
-  width: auto;
-  height: auto;
-  border: 1px solid #979797;
-}
-
 .bounds-container-body {
   border: 1px solid #979797;
           box-sizing:border-box;
@@ -124,6 +112,22 @@ input[type=number]::-webkit-outer-spin-button {
   background-color: #aaf;
 }
 
+.cell-outline-top {
+  border-top: 2px solid #8c8 !important;
+}
+
+.cell-outline-bottom {
+  border-bottom: 2px solid #8c8 !important;
+}
+
+.cell-outline-left {
+  border-left: 2px solid #8c8 !important;
+}
+
+.cell-outline-right {
+  border-right: 2px solid #8c8 !important;
+}
+
 .button {
   outline: none;
   background: #eee;
@@ -157,7 +161,16 @@ input[type=number]::-webkit-outer-spin-button {
           box-sizing:border-box;
      -moz-box-sizing:border-box;
   -webkit-box-sizing:border-box;
-  border-right: thin solid #ddd;
+  outline: none;
+  border: 0;
+  border-right: 1px solid #808080;
+  border-bottom: 1px dashed #808080;
+  padding: 4;
+}
+
+::-moz-focus-inner {
+    border: 0;
+    padding: 0;
 }
 
 .row-highlighted {
@@ -188,7 +201,6 @@ input[type=number]::-webkit-outer-spin-button {
 }
 
 .cell-selected {
-  background-color: #dfd;
 }
 
 .focused {
@@ -421,7 +433,10 @@ select > option {
 .floating-window {
   background-color: #fff;
   position: fixed !important;
-  border: 1px solid #808080;
+  border-right: 1px solid #808080;
+  border-left: 1px solid #808080;
+  border-bottom: 1px solid #808080;
+  border-top: 1px solid #ccc;
   -webkit-box-shadow: 10px 10px 23px -8px rgba(0,0,0,0.64);
      -moz-box-shadow: 10px 10px 23px -8px rgba(0,0,0,0.64);
           box-shadow: 10px 10px 23px -8px rgba(0,0,0,0.64);
@@ -429,17 +444,25 @@ select > option {
 }
 
 .floating-window-header {
-  background-image: url("../assets/icons/draggable.png");
   background-position: center;
   background-repeat: no-repeat;
   background-color: #eee;
-  border: none;
+          box-sizing:border-box;
+     -moz-box-sizing:border-box;
+  -webkit-box-sizing:border-box;
   cursor: move;
 }
 
 .floating-window-footer {
   background-color: #eee;
   border: none;
+}
+
+.floating-window-header-spacing {
+  border-bottom: 1px solid #808080;
+          box-sizing:border-box;
+     -moz-box-sizing:border-box;
+  -webkit-box-sizing:border-box;
 }
 
 .floating-window-close-button {
@@ -451,7 +474,11 @@ select > option {
   font-size:1.2em;
   padding: 0;
   text-decoration: none;
-  cursor: inherit;
+  cursor: auto;
+  border-bottom: 1px solid #808080;
+          box-sizing:border-box;
+     -moz-box-sizing:border-box;
+  -webkit-box-sizing:border-box;
 }
 
 .floating-window-close-button:hover {
