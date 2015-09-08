@@ -293,6 +293,7 @@ class WorkSheet extends VGroup {
     if (_selectedCells != null) _selectedCells.forEach((Cell cell) {
       cell.selected = false;
       cell.selectionOutline = 0;
+      cell.isSelectionDragTargetShown = false;
     });
     
     spreadsheet.headerItemRenderers.forEach((IHeaderItemRenderer R) => R.headerData.highlighted = false);
@@ -347,6 +348,8 @@ class WorkSheet extends VGroup {
       
       cell.selectionOutline = selectionOutline;
     }
+    
+    if (_selectedCells.isNotEmpty) _selectedCells.last.isSelectionDragTargetShown = true;
     
     _updateOverlay();
     

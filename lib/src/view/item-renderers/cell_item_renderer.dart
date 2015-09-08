@@ -14,6 +14,8 @@ class CellItemRenderer<D extends Cell<String>> extends EditableLabelItemRenderer
   //
   //---------------------------------
   
+  Group selectionDragTarget;
+  
   //---------------------------------
   // data
   //---------------------------------
@@ -62,8 +64,36 @@ class CellItemRenderer<D extends Cell<String>> extends EditableLabelItemRenderer
   }
   
   @override
+  void updateLayout() {
+    super.updateLayout();
+    
+    if (selectionDragTarget != null) {
+      selectionDragTarget.x = width - 10;
+      selectionDragTarget.y = height - 10;
+    }
+  }
+  
+  @override
   void textArea_onTextChangedHandler(FrameworkEvent Event) {
     if (data != null) data.value = textArea.text;
+  }
+  
+  void _addSelectionDragHandler() {
+    if (selectionDragTarget == null) {
+      selectionDragTarget = new Group()
+        ..width = 10
+        ..height = 10
+        ..className = 'cell-item-renderer-selection-drag-target'
+        ..includeInLayout = false;
+    }
+    
+    addComponent(selectionDragTarget);
+  }
+  
+  void _removeSelectionDragHandler() {
+    if (selectionDragTarget == null) return;
+    
+    if (selectionDragTarget.owner != null) removeComponent(selectionDragTarget, flush: false);
   }
   
   void _invalidateSelection() {
@@ -80,7 +110,11 @@ class CellItemRenderer<D extends Cell<String>> extends EditableLabelItemRenderer
       if (data.selectionOutline & 4 > 0) cssOutline.add('cell-outline-bottom');
       if (data.selectionOutline & 8 > 0) cssOutline.add('cell-outline-right');
       
+      data.isSelectionDragTargetShown ? _addSelectionDragHandler() : _removeSelectionDragHandler();
+      
       cssClasses = new List<String>()..addAll(cssSelection)..addAll(cssOutline);
+      
+      invalidateLayout(true);
     }
   }
 }

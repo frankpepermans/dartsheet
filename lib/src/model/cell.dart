@@ -6,6 +6,7 @@ class Cell<V> extends EventDispatcherImpl {
   @event Stream<FrameworkEvent<bool>> onSelectionChanged;
   @event Stream<FrameworkEvent<int>> onSelectionOutlineChanged;
   @event Stream<FrameworkEvent<bool>> onFocusChanged;
+  @event Stream<FrameworkEvent<int>> onIsSelectionDragTargetShownChanged;
   
   //---------------------------------
   //
@@ -68,6 +69,23 @@ class Cell<V> extends EventDispatcherImpl {
       
       notify(
           new FrameworkEvent<int>('selectionOutlineChanged', relatedObject: value)    
+      );
+    }
+  }
+  
+  //---------------------------------
+  // isSelectionDragTargetShown
+  //---------------------------------
+  
+  bool _isSelectionDragTargetShown = false;
+  
+  bool get isSelectionDragTargetShown => _isSelectionDragTargetShown;
+  set isSelectionDragTargetShown(bool value) {
+    if (value != _isSelectionDragTargetShown) {
+      _isSelectionDragTargetShown = value;
+      
+      notify(
+          new FrameworkEvent<bool>('isSelectionDragTargetShownChanged', relatedObject: value)    
       );
     }
   }
