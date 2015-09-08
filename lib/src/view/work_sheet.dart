@@ -176,7 +176,63 @@ class WorkSheet extends VGroup {
     }
   }
   
-  Cell getCell(int row, int col) => (spreadsheet.dataProvider as ObservableList<Row<Cell>>)[row].cells[col];
+  void focusCellSibling(CellItemRenderer<Cell> currentFocus, int rowOffset, int colOffset) {
+    final Cell cell = currentFocus.data;
+    final Cell nextCell = getCell(cell.rowIndex + rowOffset, cell.colIndex + colOffset);
+    
+    if (nextCell != null) for (int i=0, len=spreadsheet.list.itemRenderers.length; i<len; i++) {
+      DataGridItemRenderer<Row<Cell>> IR = spreadsheet.list.itemRenderers[i];
+      
+      for (int j=0, len2=IR.data.cells.length; j<len2; j++) {
+        Cell C = IR.data.cells[j];
+        
+        if (C == nextCell) {
+          CellItemRenderer<Cell> targetCellIR = IR.itemRendererInstances[j] as CellItemRenderer<Cell>;
+          
+          currentFocus.textArea.control.blur();
+          targetCellIR.textArea.control.focus();
+          
+          selectCell(targetCellIR, isSelectionStart: false);
+          
+          return;
+        }
+      }
+    }
+  }
+  
+  void selectCell(CellItemRenderer<Cell> target, {bool isSelectionStart: false}) {
+    StreamSubscription mouseUpSubscription;
+    
+    if (_selectionStartCell != null) _selectionStartCell.focused = false;
+    
+    _cleanCurrentSelection();
+    
+    _selectionStartCell = target.data;
+    
+    _selectionStartCell.focused = true;
+    
+    if (isSelectionStart) {
+      _isInSelectionMode = true;
+      
+      mouseUpSubscription = document.onMouseUp.listen((MouseEvent event) {
+        _isInSelectionMode = false;
+        _isInLockedSelectionMode = false;
+        
+        _lockedCells = null;
+        
+        mouseUpSubscription.cancel();
+      });
+    }
+    
+    _updateCurrentSelection(_selectionStartCell, _selectionStartCell);
+  }
+  
+  Cell getCell(int row, int col) {
+    if (row >= 0 && row < spreadsheet.dataProvider.length && col >= 0 && col < spreadsheet.columns.length)
+      return (spreadsheet.dataProvider as ObservableList<Row<Cell>>)[row].cells[col];
+    
+    return null;
+  }
   
   //---------------------------------
   //
@@ -251,6 +307,7 @@ class WorkSheet extends VGroup {
   void _handleNewCellRenderer(FrameworkEvent<CellItemRenderer> event) {
     event.relatedObject.onMouseDown.listen(_handleCellDown);
     event.relatedObject.onMouseOver.listen(_handleCellEntry);
+    event.relatedObject.onKey.listen(_handleCellKey);
     event.relatedObject.onSelectionDrag.listen(_continueCurrentSelection);
     
     _updateOverlay();
@@ -271,27 +328,18 @@ class WorkSheet extends VGroup {
   }
   
   void _handleCellDown(FrameworkEvent<MouseEvent> event) {
-    StreamSubscription mouseUpSubscription;
-    
-    if (_selectionStartCell != null) _selectionStartCell.focused = false;
-    
-    _cleanCurrentSelection();
-    
-    _isInSelectionMode = true;
-    _selectionStartCell = (event.currentTarget as CellItemRenderer<Cell>).data;
-    
-    _selectionStartCell.focused = true;
-    
-    mouseUpSubscription = document.onMouseUp.listen((MouseEvent event) {
-      _isInSelectionMode = false;
-      _isInLockedSelectionMode = false;
+    selectCell(event.currentTarget as CellItemRenderer<Cell>, isSelectionStart: true);
+  }
+  
+  void _handleCellKey(FrameworkEvent<KeyboardEvent> event) {
+    if (event.relatedObject.keyCode == KeyCode.ENTER) {
+      final CellItemRenderer<Cell> cellIR = event.currentTarget as CellItemRenderer<Cell>;
       
-      _lockedCells = null;
+      focusCellSibling(cellIR, 1, 0);
       
-      mouseUpSubscription.cancel();
-    });
-    
-    _updateCurrentSelection(_selectionStartCell, _selectionStartCell);
+      event.relatedObject.preventDefault();
+      event.relatedObject.stopImmediatePropagation();
+    }
   }
   
   void _continueCurrentSelection(FrameworkEvent<Cell> event) {
