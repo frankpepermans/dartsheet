@@ -251,6 +251,7 @@ class WorkSheet extends VGroup {
   void _handleNewCellRenderer(FrameworkEvent<CellItemRenderer> event) {
     event.relatedObject.onMouseDown.listen(_handleCellDown);
     event.relatedObject.onMouseOver.listen(_handleCellEntry);
+    event.relatedObject.onSelectionDrag.listen(_continueCurrentSelection);
     
     _updateOverlay();
   }
@@ -287,6 +288,18 @@ class WorkSheet extends VGroup {
     });
     
     _updateCurrentSelection(_selectionStartCell, _selectionStartCell);
+  }
+  
+  void _continueCurrentSelection(FrameworkEvent<Cell> event) {
+    StreamSubscription mouseUpSubscription;
+    
+    _isInSelectionMode = true;
+    
+    mouseUpSubscription = document.onMouseUp.listen((MouseEvent event) {
+      _isInSelectionMode = false;
+      
+      mouseUpSubscription.cancel();
+    });
   }
   
   void _cleanCurrentSelection() {

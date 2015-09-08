@@ -1,6 +1,8 @@
 part of dartsheet.view;
 
 class CellItemRenderer<D extends Cell<String>> extends EditableLabelItemRenderer<Cell<String>> {
+  
+  @event Stream<FrameworkEvent<Cell>> onSelectionDrag;
 
   //---------------------------------
   //
@@ -84,7 +86,10 @@ class CellItemRenderer<D extends Cell<String>> extends EditableLabelItemRenderer
         ..width = 10
         ..height = 10
         ..className = 'cell-item-renderer-selection-drag-target'
-        ..includeInLayout = false;
+        ..includeInLayout = false
+        ..onControlChanged.listen((FrameworkEvent<Element> event) {
+          event.relatedObject.onMouseDown.listen(_activateSelectionDrag);
+        });
     }
     
     addComponent(selectionDragTarget);
@@ -116,5 +121,13 @@ class CellItemRenderer<D extends Cell<String>> extends EditableLabelItemRenderer
       
       invalidateLayout(true);
     }
+  }
+  
+  void _activateSelectionDrag(MouseEvent event) {
+    event.preventDefault();
+    
+    event.stopImmediatePropagation();
+    
+    notify(new FrameworkEvent('selectionDrag', relatedObject: this));
   }
 }
