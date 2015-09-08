@@ -5,6 +5,8 @@ class Formula extends EventDispatcherImpl {
   @event Stream<FrameworkEvent<String>> onBodyChanged;
   @event Stream<FrameworkEvent<Cell>> onOriginatorChanged;
   
+  static final RegExp _REGEXP_ID = new RegExp(r'#[A-Z]+[\d]+');
+  
   final Cell appliesTo;
   
   String _body;
@@ -114,10 +116,9 @@ class Formula extends EventDispatcherImpl {
   String _localize(String value) {
     if (value == null) return null;
     
-    final RegExp re = new RegExp(r'#[A-Z]+[\d]+');
     int offset = 0;
         
-    re.allMatches(value).forEach((Match M) {
+    _REGEXP_ID.allMatches(value).forEach((Match M) {
       final String id = M.group(0);
       
       String cellId = id.substring(1);

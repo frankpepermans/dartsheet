@@ -30,7 +30,7 @@ class WorkSheet extends VGroup {
   // selectedCells
   //---------------------------------
   
-  List<Cell> _selectedCells;
+  List<Cell> _selectedCells, _lockedCells;
   
   List<Cell> get selectedCells => _selectedCells;
   
@@ -258,6 +258,7 @@ class WorkSheet extends VGroup {
   
   Cell _selectionStartCell;
   bool _isInSelectionMode = false;
+  bool _isInLockedSelectionMode = false;
   
   void _handleCellEntry(FrameworkEvent<MouseEvent> event) {
     if (_isInSelectionMode) {
@@ -283,6 +284,9 @@ class WorkSheet extends VGroup {
     
     mouseUpSubscription = document.onMouseUp.listen((MouseEvent event) {
       _isInSelectionMode = false;
+      _isInLockedSelectionMode = false;
+      
+      _lockedCells = null;
       
       mouseUpSubscription.cancel();
     });
@@ -294,9 +298,33 @@ class WorkSheet extends VGroup {
     StreamSubscription mouseUpSubscription;
     
     _isInSelectionMode = true;
+    _isInLockedSelectionMode = true;
+    _lockedCells = new List<Cell>.from(_selectedCells);
     
     mouseUpSubscription = document.onMouseUp.listen((MouseEvent event) {
       _isInSelectionMode = false;
+      _isInLockedSelectionMode = false;
+      
+      if (_selectedCells != null && _selectedCells.isNotEmpty) {
+        final List<Cell> diffCollection = <Cell>[];
+        String formulaBody = _selectedCells.first.formula.body;
+          
+        _selectedCells.forEach((Cell cell) {
+          if (!_lockedCells.contains(cell)) diffCollection.add(cell);
+        });
+        
+        final Cell firstCell = diffCollection.first;
+        
+        if (formulaBody == null || formulaBody.trim().isEmpty)
+          formulaBody = 'return #${_selectedCells.first.id}';
+        
+        diffCollection.forEach((Cell cell) {
+          cell.formula.originator = firstCell;
+          cell.formula.body = formulaBody;
+        });
+      }
+      
+      _lockedCells = null;
       
       mouseUpSubscription.cancel();
     });
@@ -317,20 +345,41 @@ class WorkSheet extends VGroup {
     IHeaderItemRenderer headerRenderer;
     Row<Cell> row;
     Cell cell;
+    int minRowIndex, minColIndex;
     
     _selectedCells = <Cell>[];
     
     if (minCell.globalIndex > maxCell.globalIndex) {
-      Cell tmpCell = minCell;
+      final Cell tmpCell = minCell;
       
       minCell = maxCell;
       maxCell = tmpCell;
     }
     
-    final int minRowIndex = (minCell.rowIndex < maxCell.rowIndex) ? minCell.rowIndex : maxCell.rowIndex;
-    final int maxRowIndex = (minCell.rowIndex > maxCell.rowIndex) ? minCell.rowIndex : maxCell.rowIndex;
-    final int minColIndex = (minCell.colIndex < maxCell.colIndex) ? minCell.colIndex : maxCell.colIndex;
-    final int maxColIndex = (minCell.colIndex > maxCell.colIndex) ? minCell.colIndex : maxCell.colIndex;
+    if (_isInLockedSelectionMode) {
+      minColIndex = _lockedCells.first.colIndex;
+      minRowIndex = _lockedCells.first.rowIndex;
+    } else {
+      minRowIndex = (minCell.rowIndex < maxCell.rowIndex) ? minCell.rowIndex : maxCell.rowIndex;
+      minColIndex = (minCell.colIndex < maxCell.colIndex) ? minCell.colIndex : maxCell.colIndex;
+    }
+     
+    int maxRowIndex = (minCell.rowIndex > maxCell.rowIndex) ? minCell.rowIndex : maxCell.rowIndex;
+    int maxColIndex = (minCell.colIndex > maxCell.colIndex) ? minCell.colIndex : maxCell.colIndex;
+    
+    if (_isInLockedSelectionMode) {
+      if (maxColIndex > minColIndex && maxColIndex > _lockedCells.last.colIndex) {
+        maxColIndex = max(_lockedCells.last.colIndex, maxColIndex);
+        maxRowIndex = _lockedCells.last.rowIndex;
+      }
+      else if (maxRowIndex > minRowIndex && maxRowIndex > _lockedCells.last.rowIndex) {
+        maxColIndex = _lockedCells.last.colIndex;
+        maxRowIndex = max(_lockedCells.last.rowIndex, maxRowIndex);
+      } else {
+        maxColIndex = _lockedCells.last.colIndex;
+        maxRowIndex = _lockedCells.last.rowIndex;
+      }
+    }
     
     final int startIndex = minRowIndex * this.initCols + minColIndex;
     final int endIndex = maxRowIndex * this.initCols + maxColIndex;
@@ -357,6 +406,14 @@ class WorkSheet extends VGroup {
         
         if (cell.colIndex == minColIndex) selectionOutline |= 2;
         if (cell.colIndex == maxColIndex) selectionOutline |= 8;
+        
+        if (_isInLockedSelectionMode) {
+          if (cell.rowIndex == _lockedCells.first.rowIndex) selectionOutline |= 1;
+          if (cell.rowIndex == _lockedCells.last.rowIndex) selectionOutline |= 4;
+          
+          if (cell.colIndex == _lockedCells.first.colIndex) selectionOutline |= 2;
+          if (cell.colIndex == _lockedCells.last.colIndex) selectionOutline |= 8;
+        }
       }
       
       cell.selectionOutline = selectionOutline;

@@ -5,6 +5,7 @@ class Cell<V> extends EventDispatcherImpl {
   @event Stream<FrameworkEvent<V>> onValueChanged;
   @event Stream<FrameworkEvent<bool>> onSelectionChanged;
   @event Stream<FrameworkEvent<int>> onSelectionOutlineChanged;
+  @event Stream<FrameworkEvent<int>> onSelectionLockOutlineChanged;
   @event Stream<FrameworkEvent<bool>> onFocusChanged;
   @event Stream<FrameworkEvent<int>> onIsSelectionDragTargetShownChanged;
   
@@ -69,6 +70,23 @@ class Cell<V> extends EventDispatcherImpl {
       
       notify(
           new FrameworkEvent<int>('selectionOutlineChanged', relatedObject: value)    
+      );
+    }
+  }
+  
+  //---------------------------------
+  // selectionLockOutline
+  //---------------------------------
+  
+  int _selectionLockOutline = 0;
+  
+  int get selectionLockOutline => _selectionLockOutline;
+  set selectionLockOutline(int value) {
+    if (value != _selectionLockOutline) {
+      _selectionLockOutline = value;
+      
+      notify(
+          new FrameworkEvent<int>('selectionLockOutlineChanged', relatedObject: value)    
       );
     }
   }

@@ -3,6 +3,7 @@ library dartsheet.view;
 import 'dart:async';
 import 'dart:html';
 import 'dart:js';
+import 'dart:math';
 
 import 'package:dart_flex/dart_flex.dart';
 import 'package:observe/observe.dart';

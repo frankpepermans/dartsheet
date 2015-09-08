@@ -110,10 +110,10 @@ class CellItemRenderer<D extends Cell<String>> extends EditableLabelItemRenderer
       else if (data.selected) cssSelection = const <String>['cell-selected'];
       else cssSelection = const <String>[];
       
-      if (data.selectionOutline & 1 > 0) cssOutline.add('cell-outline-top');
-      if (data.selectionOutline & 2 > 0) cssOutline.add('cell-outline-left');
-      if (data.selectionOutline & 4 > 0) cssOutline.add('cell-outline-bottom');
-      if (data.selectionOutline & 8 > 0) cssOutline.add('cell-outline-right');
+      if (data.selectionOutline & 1 > 0 || data.selectionLockOutline & 1 > 0) cssOutline.add('cell-outline-top');
+      if (data.selectionOutline & 2 > 0 || data.selectionLockOutline & 2 > 0) cssOutline.add('cell-outline-left');
+      if (data.selectionOutline & 4 > 0 || data.selectionLockOutline & 4 > 0) cssOutline.add('cell-outline-bottom');
+      if (data.selectionOutline & 8 > 0 || data.selectionLockOutline & 8 > 0) cssOutline.add('cell-outline-right');
       
       data.isSelectionDragTargetShown ? _addSelectionDragHandler() : _removeSelectionDragHandler();
       
