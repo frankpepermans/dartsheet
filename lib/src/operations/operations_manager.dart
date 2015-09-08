@@ -40,6 +40,8 @@ class OperationsManager {
   }
   
   void _document_pasteHandler(Event event) {
+    if (_selectionSnapshot == null || _selectionSnapshot.isEmpty) return; 
+      
     final Cell startCell = _selectionSnapshot.first;
     final Cell offsetCell = worksheet.selectedCells.first;
     final int dx = offsetCell.colIndex - startCell.colIndex;
@@ -51,7 +53,5 @@ class OperationsManager {
       
       if (tmpCell != null) tmpCell.copyFrom(currCell, startCell, startCell.formula.body);
     }
-    
-    event.preventDefault();
   }
 }
