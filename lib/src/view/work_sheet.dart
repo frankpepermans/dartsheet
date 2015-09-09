@@ -142,10 +142,10 @@ class WorkSheet extends VGroup {
     
     if (formula.appliesTo.scriptElement != null) formula.appliesTo.scriptElement.remove();
     
+    formula.cancelSubscription();
+    
     try {
       final String es5body = context['babel'].callMethod('transform', [jsf.value])['code'];
-      
-      formula.cancelSubscription();
       
       formula.appliesTo.scriptElement = new ScriptElement()..innerHtml = es5body;
       
@@ -156,6 +156,8 @@ class WorkSheet extends VGroup {
       context['yield_${formula.appliesTo.id}'] = (dynamic yieldValue) {
         formula.appliesTo.value = yieldValue.toString();
       };
+      
+      print('ES6 successful: ' + es5body);
     } catch (error) {
       print('Failed to convert to ES6: ' + error);
       
@@ -381,20 +383,54 @@ class WorkSheet extends VGroup {
       
       if (_selectedCells != null && _selectedCells.isNotEmpty) {
         final List<Cell> diffCollection = <Cell>[];
-        String formulaBody = _selectedCells.first.formula.body;
+        final Map<int, Cell> originators = <int, Cell>{};
+        final bool isHorizontalContinuation = _selectedCells.last.colIndex > _lockedCells.last.colIndex;
           
         _selectedCells.forEach((Cell cell) {
           if (!_lockedCells.contains(cell)) diffCollection.add(cell);
+          
+          if (isHorizontalContinuation) {
+            if (originators[cell.rowIndex] == null || cell.colIndex < originators[cell.rowIndex].colIndex) originators[cell.rowIndex] = cell;
+          } else {
+            if (originators[cell.colIndex] == null || cell.rowIndex < originators[cell.colIndex].rowIndex) originators[cell.colIndex] = cell;
+          }
         });
         
-        final Cell firstCell = diffCollection.first;
-        
-        if (formulaBody == null || formulaBody.trim().isEmpty)
-          formulaBody = 'return #${_selectedCells.first.id}';
-        
         diffCollection.forEach((Cell cell) {
-          cell.formula.originator = firstCell;
-          cell.formula.body = formulaBody;
+          final Cell originator = originators[isHorizontalContinuation ? cell.rowIndex : cell.colIndex];
+          
+          if (originator.formula.body == null) {
+            final Iterable matchList = _lockedCells.where((Cell C) {
+              if (isHorizontalContinuation) return C.rowIndex == cell.rowIndex;
+              else return C.colIndex == cell.colIndex;
+            });
+            final bool areAllNumbers = matchList.firstWhere((Cell C) => 
+                ((C.value != null) ? double.parse(C.value, (_) => double.NAN) : double.NAN).isNaN,
+                orElse: () => null
+            ) == null;
+            
+            if (areAllNumbers) {
+              final double startValue = ((matchList.first.value != null) ? double.parse(matchList.first.value, (_) => .0) : .0);
+              final double step = matchList.fold(
+                  startValue, 
+                  (dynamic v, Cell C) => ((C.value != null) ? double.parse(C.value, (_) => .0) : .0) - v
+              );
+              final int lookupRow = isHorizontalContinuation ? cell.rowIndex : cell.rowIndex - 1;
+              final int lookupCol = isHorizontalContinuation ? cell.colIndex - 1 : cell.colIndex;
+              final dynamic lookupCellValue = getCell(lookupRow, lookupCol).value;
+              final double cellValue = ((lookupCellValue != null) ? double.parse(lookupCellValue, (_) => .0) : .0) + step;
+            
+              cell.value = cellValue.toString();
+            } else {
+              final int lookupRow = isHorizontalContinuation ? cell.rowIndex : matchList.first.rowIndex + (cell.rowIndex - matchList.first.rowIndex) % matchList.length;
+              final int lookupCol = isHorizontalContinuation ? matchList.first.colIndex + (cell.colIndex - matchList.first.colIndex) % matchList.length : cell.colIndex;
+                            
+              cell.value = getCell(lookupRow, lookupCol).value;
+            }
+          } else {
+            cell.formula.originator = originator;
+            cell.formula.body = originator.formula.body;
+          }
         });
       }
       
