@@ -153,7 +153,7 @@ class WorkSheet extends VGroup {
       
       formula.subscription = context.callMethod('__${formula.appliesTo.id}', []) as JsObject;
       
-      context['yield_${formula.appliesTo.id}'] = (dynamic yieldValue) {
+      context['resolve_${formula.appliesTo.id}'] = (dynamic yieldValue) {
         formula.appliesTo.value = yieldValue.toString();
       };
       

@@ -83,7 +83,7 @@ class Formula extends EventDispatcherImpl {
     
     lines[lines.length - 1] = 'return ${lines[lines.length - 1]}';
     
-    String rawScript = 'function __${appliesTo.id}() { try {${newLine}let retain = (value) => yield_${appliesTo.id}(value)${newLine} ${lines.join(newLine)}${newLine}} catch (error) {} }';
+    String rawScript = 'function __${appliesTo.id}() { try {${newLine}this.resolve = resolve_${appliesTo.id}${newLine} ${lines.join(newLine)}${newLine}} catch (error) { console.log(error); } };';
     
     argMap.forEach((String K, String V) => rawScript = rawScript.replaceAll(K, V));
     
@@ -117,7 +117,9 @@ class Formula extends EventDispatcherImpl {
   
   void cancelSubscription() {
     if (subscription != null) {
-      subscription.callMethod('dispose', []);
+      try {
+        subscription.callMethod('dispose', []);
+      } catch (error) {}
       
       subscription = null;
     }
