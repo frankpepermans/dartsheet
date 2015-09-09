@@ -2,6 +2,7 @@ library dartsheet.model;
 
 import 'dart:async';
 import 'dart:html';
+import 'dart:js';
 
 import 'package:dart_flex/dart_flex.dart';
 import 'package:observe/observe.dart';

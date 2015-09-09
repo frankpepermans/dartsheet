@@ -14,6 +14,8 @@ class WorkSheet extends VGroup {
   final int initRows;
   final int initCols;
   
+  final Map<String, JsObject> _rxSteams = <String, JsObject>{};
+  
   operations.OperationsManager _operationsManager;
   
   //---------------------------------
@@ -141,12 +143,22 @@ class WorkSheet extends VGroup {
     if (formula.appliesTo.scriptElement != null) formula.appliesTo.scriptElement.remove();
     
     try {
-      formula.appliesTo.scriptElement = new ScriptElement()..innerHtml = jsf.value;
+      final String es5body = context['babel'].callMethod('transform', [jsf.value])['code'];
+      
+      formula.cancelSubscription();
+      
+      formula.appliesTo.scriptElement = new ScriptElement()..innerHtml = es5body;
       
       document.head.append(formula.appliesTo.scriptElement);
       
-      formula.appliesTo.value = context.callMethod('__${formula.appliesTo.id}', jsf.arguments).toString();
+      formula.subscription = context.callMethod('__${formula.appliesTo.id}', []) as JsObject;
+      
+      context['yield_${formula.appliesTo.id}'] = (dynamic yieldValue) {
+        formula.appliesTo.value = yieldValue.toString();
+      };
     } catch (error) {
+      print('Failed to convert to ES6: ' + error);
+      
       formula.appliesTo.value = null;
     }
   }
@@ -270,6 +282,12 @@ class WorkSheet extends VGroup {
     
     for (int i=0; i<initCols; i++) row.cells.add(_createCell(toCellIdentity(rowIndex, i), rowIndex, i));
     
+    if (rowIndex == 0) {
+      final String cellId = 'R${rowIndex + 1}';
+      
+      _rxSteams[cellId] = context.callMethod('__createCellStream', [cellId]);
+    }
+    
     return row;
   }
   
@@ -279,6 +297,12 @@ class WorkSheet extends VGroup {
     spreadsheet.cells.add(cell);
     
     cell.formula.onBodyChanged.listen((FrameworkEvent<String> event) => invalidateFormula(event.currentTarget as Formula));
+    
+    if (rowIndex == 0) {
+      final String cellId = new String.fromCharCode(colIndex + 65);
+      
+      _rxSteams[cellId] = context.callMethod('__createCellStream', [cellId]);
+    }
     
     return cell;
   }
@@ -329,6 +353,8 @@ class WorkSheet extends VGroup {
   
   void _handleCellDown(FrameworkEvent<MouseEvent> event) {
     selectCell(event.currentTarget as CellItemRenderer<Cell>, isSelectionStart: true);
+    
+    _operationsManager.start();
   }
   
   void _handleCellKey(FrameworkEvent<KeyboardEvent> event) {

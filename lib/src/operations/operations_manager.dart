@@ -3,14 +3,19 @@ part of dartsheet.operations;
 class OperationsManager {
   
   final WorkSheet worksheet;
+  final List<StreamSubscription> _subscriptions = <StreamSubscription>[];
   
   List<Cell> _selectionSnapshot;
   
-  OperationsManager(this.worksheet) {
-    document.onCopy.listen(_document_copyHandler);
-    document.onPaste.listen(_document_pasteHandler);
+  OperationsManager(this.worksheet);
+  
+  void start() {
+    if (_subscriptions.isNotEmpty) return;
     
-    window.onKeyDown.listen((KeyboardEvent event) {
+    _subscriptions.add(document.onCopy.listen(_document_copyHandler));
+    _subscriptions.add(document.onPaste.listen(_document_pasteHandler));
+    
+    _subscriptions.add(window.onKeyDown.listen((KeyboardEvent event) {
       switch (event.keyCode) {
         case KeyCode.UP : case KeyCode.DOWN : case KeyCode.LEFT : case KeyCode.RIGHT :
           final Element activeElement = document.activeElement;
@@ -32,7 +37,13 @@ class OperationsManager {
           
           break;
       }
-    });
+    }));
+  }
+  
+  void stop() {
+    _subscriptions.forEach((StreamSubscription S) => S.cancel());
+    
+    _subscriptions.clear();
   }
   
   void _document_copyHandler(Event event) {
@@ -53,5 +64,7 @@ class OperationsManager {
       
       if (tmpCell != null) tmpCell.copyFrom(currCell, startCell, startCell.formula.body);
     }
+    
+    event.preventDefault();
   }
 }

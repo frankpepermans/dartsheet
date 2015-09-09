@@ -5,9 +5,11 @@ class Formula extends EventDispatcherImpl {
   @event Stream<FrameworkEvent<String>> onBodyChanged;
   @event Stream<FrameworkEvent<Cell>> onOriginatorChanged;
   
-  static final RegExp _REGEXP_ID = new RegExp(r'#[A-Z]+[\d]+');
+  static final RegExp _REGEXP_ID = new RegExp(r'\$[A-Z]+[\d]*');
   
   final Cell appliesTo;
+  
+  JsObject subscription;
   
   String _body;
   
@@ -45,20 +47,15 @@ class Formula extends EventDispatcherImpl {
   JsFunctionBody getJavaScriptFunctionBody(ObservableList<Row<Cell>> dataProvider, List<StreamSubscription> streamManager, void streamHandler(Formula formula)) {
     if (_body == null) return null;
     
-    final RegExp re = new RegExp(r'#[A-Z]+[\d]+');
-    final List<String> args = <String>['cellValue'];
     final JsFunctionBody jsf = new JsFunctionBody(appliesTo.value);
     final Map<String, String> argMap = <String, String>{};
-    int nextCharCode = 0;
         
-    re.allMatches(_body).forEach((Match M) {
+    _REGEXP_ID.allMatches(_body).forEach((Match M) {
       final String id = M.group(0);
       
       String cellId = id.substring(1);
       
-      argMap[id] = '__arg${nextCharCode++}';
-      
-      args.add(argMap[id]);
+      argMap[id] = '\$.$cellId';
       
       int rowIndex = toRowIndex(cellId);
       
@@ -81,7 +78,12 @@ class Formula extends EventDispatcherImpl {
       }
     });
     
-    String rawScript = 'function __${appliesTo.id}(${args.join(",")}) { try { ${body} } catch (error) { return null; } }';
+    final List<String> lines = body.trim().split('\n');
+    final String newLine = new String.fromCharCode(13);
+    
+    lines[lines.length - 1] = 'return ${lines[lines.length - 1]}';
+    
+    String rawScript = 'function __${appliesTo.id}() { try {${newLine}var setCellValue = (value) => yield_${appliesTo.id}(value)${newLine} ${lines.join(newLine)}${newLine}} catch (error) {} }';
     
     argMap.forEach((String K, String V) => rawScript = rawScript.replaceAll(K, V));
     
@@ -113,6 +115,18 @@ class Formula extends EventDispatcherImpl {
     return -1;
   }
   
+  void cancelSubscription() {
+    if (subscription != null) {
+      try {
+        subscription.callMethod('dispose', []);
+      } catch (error) {
+        
+      } finally {
+        subscription = null;
+      }
+    }
+  }
+  
   String _localize(String value) {
     if (value == null) return null;
     
@@ -126,9 +140,9 @@ class Formula extends EventDispatcherImpl {
       int rowIndex = toRowIndex(cellId);
       int colIndex = toColIndex(cellId);
       
-      final String localCellId = toCellIdentity(rowIndex + appliesTo.rowIndex - _originator.rowIndex, colIndex + appliesTo.colIndex - _originator.colIndex);
+      final String localCellId = (rowIndex < 0) ? cellId : toCellIdentity(rowIndex + appliesTo.rowIndex - _originator.rowIndex, colIndex + appliesTo.colIndex - _originator.colIndex);
       
-      value = value.substring(0, M.start + offset) + '#' + localCellId + value.substring(M.end + offset);
+      value = value.substring(0, M.start + offset) + '\$' + localCellId + value.substring(M.end + offset);
       
       offset += localCellId.length - cellId.length;
     });

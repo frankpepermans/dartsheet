@@ -50,6 +50,7 @@ class Window extends DartFlexRootContainer {
       ..percentWidth = 100.0
       ..percentHeight = 100.0
       ..onTextChanged.listen(_handleMethodField)
+      ..onControlChanged.listen((FrameworkEvent<Element> event) => event.relatedObject.onFocus.listen((_) => sheet._operationsManager.stop()))
       ..enabled = false;
     
     sheet = new WorkSheet(160, 50)

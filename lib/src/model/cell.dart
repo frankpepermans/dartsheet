@@ -20,6 +20,7 @@ class Cell<V> extends EventDispatcherImpl {
   final List<StreamSubscription> siblingSubscriptions = <StreamSubscription>[];
   
   ScriptElement scriptElement;
+  JsObject cell$;
   
   //---------------------------------
   // value
@@ -31,6 +32,13 @@ class Cell<V> extends EventDispatcherImpl {
   void set value(V newValue) {
     if (newValue != value) {
       _value = newValue;
+      
+      //cell$.callMethod('onNext', [newValue]);
+      final String cellId = new String.fromCharCode(colIndex + 65);
+      
+      context.callMethod('__updateCellStream', [id, newValue]);
+      context.callMethod('__updateCellStream', [cellId, newValue]);
+      context.callMethod('__updateCellStream', ['R${rowIndex + 1}', newValue]);
       
       notify(new FrameworkEvent<V>('valueChanged', relatedObject: newValue));
     }
@@ -135,6 +143,9 @@ class Cell<V> extends EventDispatcherImpl {
     _formula = new Formula(this);
     
     value = initialValue;
+    
+    cell$ = context.callMethod('__createCellStream', [id]);
+    //new JsObject(context['Rx']['Subject'], []);
   }
   
   factory Cell.fromOtherCell(Cell cell) {
