@@ -44,7 +44,7 @@ class Formula extends EventDispatcherImpl {
       return F;
     }
   
-  JsFunctionBody getJavaScriptFunctionBody(ObservableList<Row<Cell>> dataProvider, List<StreamSubscription> streamManager, void streamHandler(Formula formula)) {
+  JsFunctionBody getJavaScriptFunctionBody(ObservableList<Row<Cell>> dataProvider, List<StreamSubscription> streamManager) {
     if (_body == null) return null;
     
     final JsFunctionBody jsf = new JsFunctionBody(appliesTo.value);
@@ -56,26 +56,6 @@ class Formula extends EventDispatcherImpl {
       String cellId = id.substring(1);
       
       argMap[id] = '\$.$cellId';
-      
-      int rowIndex = toRowIndex(cellId);
-      
-      if (rowIndex >= 0) {
-        final Row<Cell> row = dataProvider[rowIndex];
-        
-        for (int j=0, cells=row.cells.length; j<cells; j++) {
-          Cell dpCell = row.cells[j];
-          
-          if (dpCell.id == cellId) {
-            if (dpCell.value == null) jsf.arguments.add(null);
-            else if (!num.parse(dpCell.value, (_) => double.NAN).isNaN) jsf.arguments.add(num.parse(dpCell.value));
-            else jsf.arguments.add(dpCell.value);
-            
-            if (dpCell.id != id) streamManager.add(dpCell.onValueChanged.listen((_) => streamHandler(this)));
-            
-            break;
-          }
-        }
-      }
     });
     
     final List<String> lines = body.trim().split('\n');

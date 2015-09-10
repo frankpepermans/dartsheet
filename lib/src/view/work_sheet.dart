@@ -138,7 +138,7 @@ class WorkSheet extends VGroup {
   Future invalidateFormula(Formula formula) async {
     await formula.appliesTo.clearSiblingSubscriptions();
     
-    final JsFunctionBody jsf = formula.getJavaScriptFunctionBody(spreadsheet.dataProvider, formula.appliesTo.siblingSubscriptions, invalidateFormula);
+    final JsFunctionBody jsf = formula.getJavaScriptFunctionBody(spreadsheet.dataProvider, formula.appliesTo.siblingSubscriptions);
     
     if (formula.appliesTo.scriptElement != null) formula.appliesTo.scriptElement.remove();
     
@@ -155,6 +155,8 @@ class WorkSheet extends VGroup {
       
       context['resolve_${formula.appliesTo.id}'] = (dynamic yieldValue) {
         formula.appliesTo.value = yieldValue.toString();
+        
+        return yieldValue;
       };
       
       print('ES6 successful: ' + es5body);
