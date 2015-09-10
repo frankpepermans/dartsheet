@@ -63,7 +63,7 @@ class Formula extends EventDispatcherImpl {
     
     lines[lines.length - 1] = 'return ${lines[lines.length - 1]}';
     
-    String rawScript = 'function __${appliesTo.id}() { try {${newLine}this.resolve = resolve_${appliesTo.id}${newLine} ${lines.join(newLine)}${newLine}} catch (error) { console.log(error); } };';
+    String rawScript = 'function __${appliesTo.id}() { try {${newLine}var onvalue = onvalue_${appliesTo.id}${newLine}var oncss = oncss_${appliesTo.id}${newLine} ${lines.join(newLine)}${newLine}} catch (error) { console.log(error); } };';
     
     argMap.forEach((String K, String V) => rawScript = rawScript.replaceAll(K, V));
     

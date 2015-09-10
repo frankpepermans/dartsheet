@@ -151,13 +151,19 @@ class WorkSheet extends VGroup {
       
       document.head.append(formula.appliesTo.scriptElement);
       
-      formula.subscription = context.callMethod('__${formula.appliesTo.id}', []) as JsObject;
-      
-      context['resolve_${formula.appliesTo.id}'] = (dynamic yieldValue) {
+      context['onvalue_${formula.appliesTo.id}'] = (dynamic yieldValue) {
         formula.appliesTo.value = yieldValue.toString();
         
         return yieldValue;
       };
+      
+      context['oncss_${formula.appliesTo.id}'] = (JsObject yieldValue) {
+        formula.appliesTo.style = yieldValue;
+        
+        return yieldValue;
+      };
+      
+      formula.subscription = context.callMethod('__${formula.appliesTo.id}', []) as JsObject;
       
       print('ES6 successful: ' + es5body);
     } catch (error) {

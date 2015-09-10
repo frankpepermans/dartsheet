@@ -9,6 +9,8 @@ class CellItemRenderer<D extends Cell<String>> extends EditableLabelItemRenderer
   // Protected properties
   //
   //---------------------------------
+  
+  CssStyleDeclaration _defaultStyle;
 
   //---------------------------------
   //
@@ -29,6 +31,7 @@ class CellItemRenderer<D extends Cell<String>> extends EditableLabelItemRenderer
     streamSubscriptionManager.flushIdent('selection-listener');
     streamSubscriptionManager.flushIdent('selection-outline-listener');
     streamSubscriptionManager.flushIdent('focus-listener');
+    streamSubscriptionManager.flushIdent('style-listener');
     
     super.data = value;
     
@@ -37,9 +40,11 @@ class CellItemRenderer<D extends Cell<String>> extends EditableLabelItemRenderer
       streamSubscriptionManager.add('selection-listener', value.onSelectionChanged.listen((_) => invokeLaterSingle('invalidateSelection', _invalidateSelection)));
       streamSubscriptionManager.add('selection-outline-listener', value.onSelectionOutlineChanged.listen((_) => invokeLaterSingle('invalidateSelection', _invalidateSelection)));
       streamSubscriptionManager.add('focus-listener', value.onFocusChanged.listen((_) => invokeLaterSingle('invalidateSelection', _invalidateSelection)));
+      streamSubscriptionManager.add('style-listener', value.onStyleChanged.listen((_) => invokeLaterSingle('invalidateStyle', _invalidateStyle)));
     }
     
-    _invalidateSelection();//invokeLaterSingle('invalidateSelection', _invalidateSelection);
+    _invalidateSelection();
+    _invalidateStyle();
   }
 
   //---------------------------------
@@ -120,6 +125,22 @@ class CellItemRenderer<D extends Cell<String>> extends EditableLabelItemRenderer
       cssClasses = new List<String>()..addAll(cssSelection)..addAll(cssOutline);
       
       invalidateLayout(true);
+    }
+  }
+  
+  void _invalidateStyle() {
+    if (textArea == null) return;
+    
+    if (data != null && data.style != null) {
+      final Iterable<String> keys = context['Object'].callMethod('keys', [data.style]);
+      
+      if (_defaultStyle == null) _defaultStyle = new CssStyleDeclaration.css(textArea.control.style.cssText);
+      
+      try {
+        keys.forEach((String K) => textArea.control.style.setProperty(K, data.style[K]));
+      } catch (error) {}
+    } else if (_defaultStyle != null) {
+      textArea.control.style.cssText = _defaultStyle.cssText;
     }
   }
   

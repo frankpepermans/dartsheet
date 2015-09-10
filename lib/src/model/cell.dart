@@ -8,6 +8,7 @@ class Cell<V> extends EventDispatcherImpl {
   @event Stream<FrameworkEvent<int>> onSelectionLockOutlineChanged;
   @event Stream<FrameworkEvent<bool>> onFocusChanged;
   @event Stream<FrameworkEvent<int>> onIsSelectionDragTargetShownChanged;
+  @event Stream<FrameworkEvent<JsObject>> onStyleChanged;
   
   //---------------------------------
   //
@@ -129,6 +130,23 @@ class Cell<V> extends EventDispatcherImpl {
       
       notify(
           new FrameworkEvent<bool>('focusChanged', relatedObject: value)    
+      );
+    }
+  }
+  
+  //---------------------------------
+  // style
+  //---------------------------------
+  
+  JsObject _style;
+  
+  JsObject get style => _style;
+  set style(JsObject value) {
+    if (value != _style) {
+      _style = value;
+      
+      notify(
+          new FrameworkEvent<JsObject>('styleChanged', relatedObject: value)    
       );
     }
   }
