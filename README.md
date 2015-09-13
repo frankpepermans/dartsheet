@@ -16,6 +16,8 @@ A minimal set of typical spreadsheet features is included:
 * Use **return** to move to the cell below
 * Copy/paste one or more cells (selection), copy/paste will transform formulas to represent the relative cell position(s). For example, if you copy/paste a formula which listens to the cell stream A1, it will listen to B1 if the paste happens on the adjacent right cell.
 * Horizontal and vertical scroll lock bars can be dragged to increase/decrease locked rows and columns
+* You can click-drag to select multiple cells
+* You can transform and clone cell behaviour on a selection by dragging the small solid green rectangle in the very bottom-right corner of the same selection
 
 ## Writing formulas
 
