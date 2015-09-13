@@ -45,9 +45,11 @@ class Window extends DartFlexRootContainer {
     examples = new Dropdown()
       ..percentWidth = 100.0
       ..percentHeight = 100.0
-      ..dataProvider = new ObservableList<String>.from(const <String>['examples/yahoo.finance.quotes.js', 'examples/yahoo.finance.quotes.js', 'examples/yahoo.finance.quotes.js'])
+      ..dataProvider = new ObservableList<String>.from(const <String>['examples/__docs.js', 'examples/yahoo.finance.quotes.js'])
+      ..selectedItem = 'examples/__docs.js'
+      ..labelFunction = ((String fileName) => fileName.split('/').last)
       ..itemRendererFactory = new ItemRendererFactory<LabelItemRenderer>(constructorMethod: LabelItemRenderer.construct)
-      ..onSelectedItemChanged.listen(_loadExample);
+      ..onSelectedItemChanged.listen(_dropdown_selectionHandler);
     
     methodField = new FormulaBox()
       ..className = 'method-field'
@@ -76,6 +78,8 @@ class Window extends DartFlexRootContainer {
     methodFieldFloater.addComponent(methodField);
     
     addComponent(methodFieldFloater);
+    
+    _loadExample('examples/__docs.js');
   }
   
   void _handleMethodField(FrameworkEvent event) {
@@ -101,10 +105,15 @@ class Window extends DartFlexRootContainer {
     else methodField.text = '';
   }
   
-  Future _loadExample(FrameworkEvent<String> event) async {
-    final String exampleJs = await HttpRequest.getString(event.relatedObject);
+  void _dropdown_selectionHandler(FrameworkEvent<String> event) {
+    _loadExample(event.relatedObject);
+  }
+  
+  Future _loadExample(String fileName) async {
+    final String exampleJs = await HttpRequest.getString(fileName);
     
     if (sheet.lastEditedCell != null) methodField.text = exampleJs.replaceAll(new RegExp(r'\$[A-Z]+[\d]+'), '\$${sheet.lastEditedCell.id}');
+    else methodField.text = exampleJs;
     
     return null;
   }

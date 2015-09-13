@@ -21,7 +21,7 @@ class Cell<V> extends EventDispatcherImpl {
   final List<StreamSubscription> siblingSubscriptions = <StreamSubscription>[];
   
   ScriptElement scriptElement;
-  JsObject cell$;
+  JsObject cell$, cellClick$;
   
   //---------------------------------
   // value
@@ -151,7 +151,7 @@ class Cell<V> extends EventDispatcherImpl {
     value = initialValue;
     
     cell$ = context.callMethod('__createCellStream', [id]);
-    //new JsObject(context['Rx']['Subject'], []);
+    cellClick$ = context.callMethod('__createCellStream', ['${id}_click']);
   }
   
   factory Cell.fromOtherCell(Cell cell) {

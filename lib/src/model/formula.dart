@@ -59,7 +59,7 @@ class Formula extends EventDispatcherImpl {
       argMap[id] = '\$.$cellId';
     });
     
-    String rawScript = 'function __${appliesTo.id}() { try {${newLine}var onvalue = onvalue_${appliesTo.id}${newLine}var oncss = oncss_${appliesTo.id}${newLine} $body${newLine}} catch (error) { console.log(error); } };';
+    String rawScript = 'function __${appliesTo.id}() { try {${newLine}var onvalue = onvalue_${appliesTo.id}${newLine}var onvaluedown = onvaluedown_${appliesTo.id}${newLine}var oncss = oncss_${appliesTo.id}${newLine} $body${newLine}} catch (error) { console.log(error); } };';
     
     argMap.forEach((String K, String V) => rawScript = rawScript.replaceAll(K, V));
     

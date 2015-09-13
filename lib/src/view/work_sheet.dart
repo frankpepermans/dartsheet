@@ -162,6 +162,21 @@ class WorkSheet extends VGroup {
         return yieldValue;
       };
       
+      context['onvaluedown_${formula.appliesTo.id}'] = (dynamic yieldValue) {
+        for (int i=formula.appliesTo.rowIndex, len=spreadsheet.dataProvider.length; i<len; i++) {
+          Row<Cell<String>> row = spreadsheet.dataProvider[i];
+          Cell<String> cell = row.cells[formula.appliesTo.colIndex];
+          
+          if (cell.value == null || cell.value.isEmpty) {
+            cell.value = yieldValue.toString();
+            
+            return yieldValue;
+          }
+        }
+        
+        return yieldValue;
+      };
+      
       context['oncss_${formula.appliesTo.id}'] = (JsObject yieldValue) {
         formula.appliesTo.style = yieldValue;
         
@@ -315,9 +330,9 @@ class WorkSheet extends VGroup {
     for (int i=0; i<initCols; i++) row.cells.add(_createCell(toCellIdentity(rowIndex, i), rowIndex, i));
     
     if (rowIndex == 0) {
-      final String cellId = 'R${rowIndex + 1}';
+      final String rowId = '${rowIndex + 1}R';
       
-      _rxSteams[cellId] = context.callMethod('__createCellStream', [cellId]);
+      _rxSteams[rowId] = context.callMethod('__createCellStream', [rowId]);
     }
     
     return row;
@@ -364,6 +379,7 @@ class WorkSheet extends VGroup {
   void _handleNewCellRenderer(FrameworkEvent<CellItemRenderer> event) {
     event.relatedObject.onMouseDown.listen(_handleCellDown);
     event.relatedObject.onMouseOver.listen(_handleCellEntry);
+    event.relatedObject.onClick.listen(_handleCellClick);
     event.relatedObject.onKey.listen(_handleCellKey);
     event.relatedObject.onSelectionDrag.listen(_continueCurrentSelection);
     
@@ -373,6 +389,12 @@ class WorkSheet extends VGroup {
   Cell _selectionStartCell;
   bool _isInSelectionMode = false;
   bool _isInLockedSelectionMode = false;
+  
+  void _handleCellClick(FrameworkEvent<MouseEvent> event) {
+    final CellItemRenderer<Cell> renderer = event.currentTarget as CellItemRenderer;
+    
+    context.callMethod('__updateCellStream', ['${renderer.data.id}_click', true]);
+  }
   
   void _handleCellEntry(FrameworkEvent<MouseEvent> event) {
     if (_isInSelectionMode) {
