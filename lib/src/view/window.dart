@@ -45,7 +45,7 @@ class Window extends DartFlexRootContainer {
     examples = new Dropdown()
       ..percentWidth = 100.0
       ..percentHeight = 100.0
-      ..labelFunction = ((Map<String, dynamic> M) => M['title'])
+      ..labelFunction = ((Map<String, dynamic> M) => (M == null) ? '' : M['title'])
       ..itemRendererFactory = new ItemRendererFactory<LabelItemRenderer>(constructorMethod: LabelItemRenderer.construct)
       ..onSelectedItemChanged.listen(_dropdown_selectionHandler);
     
@@ -96,6 +96,7 @@ class Window extends DartFlexRootContainer {
       valueEntry.value = '';
     
     methodField.enabled = methodFieldFloater.visible = true;
+    examples.selectedItem = null;
     
     if (event.relatedObject.length > 1) return;
     
@@ -104,7 +105,7 @@ class Window extends DartFlexRootContainer {
   }
   
   void _dropdown_selectionHandler(FrameworkEvent<String> event) {
-    _loadExample((event.relatedObject as Map<String, dynamic>)['fileName']);
+    if (event.relatedObject != null) _loadExample((event.relatedObject as Map<String, dynamic>)['fileName']);
   }
   
   Future _loadManifest() async {

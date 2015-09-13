@@ -25,6 +25,16 @@ class FormulaBox extends Component {
   }
   
   //---------------------------------
+  // enabled
+  //---------------------------------
+  
+  set enabled(bool value) {
+    super.enabled = value;
+    
+    _commitCodeEnabled();
+  }
+  
+  //---------------------------------
   //
   // Constructor
   //
@@ -65,10 +75,15 @@ class FormulaBox extends Component {
     setControl(input);
     
     _commitText();
+    _commitCodeEnabled();
   }
   
   void _commitText() {
     if (control != null) invokeLaterSingle('commitTextOnReflow', _commitTextOnReflow);
+  }
+  
+  void _commitCodeEnabled() {
+    if (code != null) code.style.pointerEvents = enabled ? 'auto' : 'none';
   }
   
   void _commitTextOnReflow() {

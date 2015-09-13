@@ -12,7 +12,7 @@ Rx.Observable.prototype.__subscribe = function(cellId, oOrOnNext, onError, onCom
 
 function __createCellStream(id) {
 	try {
-		if ($[id] == null) $[id] = new Rx.ReplaySubject();
+		if ($[id] == null) $[id] = new Rx.ReplaySubject(1);
 		
 		return $[id];
 	} catch (error) {}

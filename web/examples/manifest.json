@@ -7,5 +7,13 @@
   {
     "title": "stock ticker",
     "fileName": "examples/yahoo.finance.quotes.js"
+  },
+  {
+    "title": "column increment stream",
+    "fileName": "examples/simple.column.ticker.js"
+  },
+  {
+    "title": "column listener",
+    "fileName": "examples/simple.column.listener.js"
   }
 ]
