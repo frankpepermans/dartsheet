@@ -45,9 +45,7 @@ class Window extends DartFlexRootContainer {
     examples = new Dropdown()
       ..percentWidth = 100.0
       ..percentHeight = 100.0
-      ..dataProvider = new ObservableList<String>.from(const <String>['examples/__docs.js', 'examples/yahoo.finance.quotes.js'])
-      ..selectedItem = 'examples/__docs.js'
-      ..labelFunction = ((String fileName) => fileName.split('/').last)
+      ..labelFunction = ((Map<String, dynamic> M) => M['title'])
       ..itemRendererFactory = new ItemRendererFactory<LabelItemRenderer>(constructorMethod: LabelItemRenderer.construct)
       ..onSelectedItemChanged.listen(_dropdown_selectionHandler);
     
@@ -56,7 +54,7 @@ class Window extends DartFlexRootContainer {
       ..percentWidth = 100.0
       ..percentHeight = 100.0
       ..onTextChanged.listen(_handleMethodField)
-      ..onControlChanged.listen((FrameworkEvent<Element> event) => event.relatedObject.onFocus.listen((_) => sheet._operationsManager.stop()))
+      ..onControlChanged.listen((FrameworkEvent<Element> event) => (event.currentTarget as FormulaBox).code.onFocus.listen((_) => sheet._operationsManager.stop()))
       ..enabled = false;
     
     sheet = new WorkSheet(160, 50)
@@ -79,7 +77,7 @@ class Window extends DartFlexRootContainer {
     
     addComponent(methodFieldFloater);
     
-    _loadExample('examples/__docs.js');
+    _loadManifest();
   }
   
   void _handleMethodField(FrameworkEvent event) {
@@ -106,7 +104,20 @@ class Window extends DartFlexRootContainer {
   }
   
   void _dropdown_selectionHandler(FrameworkEvent<String> event) {
-    _loadExample(event.relatedObject);
+    _loadExample((event.relatedObject as Map<String, dynamic>)['fileName']);
+  }
+  
+  Future _loadManifest() async {
+    final List<Map<String, dynamic>> manifest = JSON.decode(await HttpRequest.getString('examples/manifest.json'));
+    
+    final Map<String, dynamic> defaultExample = manifest.firstWhere(
+        (Map<String, dynamic> M) => M.containsKey('loadByDefault') && M['loadByDefault'] == true,
+        orElse: () => null
+    );
+    
+    examples.dataProvider = new ObservableList<Map<String, dynamic>>.from(manifest);
+    
+    _loadExample(defaultExample['fileName']);
   }
   
   Future _loadExample(String fileName) async {

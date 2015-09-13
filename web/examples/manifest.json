@@ -1,0 +1,11 @@
+[
+  {
+    "title": "how to",
+    "fileName": "examples/__docs.js",
+    "loadByDefault": true
+  },
+  {
+    "title": "stock ticker",
+    "fileName": "examples/yahoo.finance.quotes.js"
+  }
+]
