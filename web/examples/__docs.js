@@ -1,3 +1,8 @@
+/*
+ * !!! Only tested with the latest Chrome browser !!!
+ * !!! Other browser may not work correctly       !!!
+ */
+
 //--------------------------
 // Resolving values
 //--------------------------

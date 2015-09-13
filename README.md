@@ -1,62 +1,52 @@
-# Minimal Dart Webapp
+# Dart spreadsheet with RxJs
 
-A mobile-friendly web app with routing, responsive CSS, and (optional) Sass
-support.
+This is a spreadsheet component, written in Dart.
 
-This template features:
+All spreadsheet entities (cells, rows, columns, click events) are available as streams.
+The idea is that the user can transform data using reactive extensions, or `RxJs`.
 
-* Responsive web design, thanks to Web Starter Kit
-* CSS minification, thanks to Sass
-* Inlining scripts, thanks to `script_inliner`
-* Routing and views, thanks to `route_hierarchical`
-* Handling input, thanks to `dart:html`
+Every cell can have its own unique formula,
+you can write formulae in ES6, the `babel.js` plugin will convert any ES6 code to ES5.
 
-## Responsive
+## spreadsheet features
 
-Thanks to Web Starter Kit, this template looks and acts great on
-mobile and desktop. Using the styles found in `web/styles`, you can
-be assured there is base support for phones, tablets, and laptops.
+A minimal set of typical spreadsheet features is included:
 
-The `lib/nav_menu.dart` is required to trigger the menus when on a phone.
+* Use the arrow keys to move between cells
+* Use **return** to move to the cell below
+* Copy/paste one or more cells (selection), copy/paste will transform formulas to represent the relative cell position(s). For example, if you copy/paste a formula which listens to the cell stream A1, it will listen to B1 if the paste happens on the adjacent right cell.
+* Horizontal and vertical scroll lock bars can be dragged to increase/decrease locked rows and columns
 
-## CSS minification
+## Writing formulas
 
-Thanks to Sass, CSS or SCSS files imported by `web/styles/main.scss`
-are concantenated and minified during builds. The result is a small
-and fast-loading CSS file.
+Formulas need to be written in `JavaScript', in either `ES6` OR `ES5` flavour.
+You can use RxJs to work with the following available streams:
 
-Look in `pubspec.yaml` for the `sass` dependency. The Sass transformer
-does the work of converting Sass into CSS and minimizing it.
+* Cells expose as $[column][row], for example $A1 is the stream on the cell at position A1
+* Rows can be referenced as $R[row number], for example $R1
+* Columns can be referenced as $[column], for example $A
 
-## Inlining scripts
+At any moment, you can instruct your formula to update the underlying cell value, or style
 
-To reduce the app startup time, this template inlines the `dart.js` file.
-During a build, the contents of `dart.js` are included in the `index.html`
-file.
+* onvalue(newValue) updates the current cell's value to the newValue
+* onvaluedown(newValue) updates the first available cell which has an empty value, the direction is downwards of the current cell. If the current cell itself is empty, then the first update will be the cell itself
+* oncss(object) updates the cell's style, for example oncss( {color: #f00} ) will make the cell text go red
 
-Look in `pubspec.yaml` for the `script_inliner` dependency and transformer.
+The following example uses an interval to set cell values in the same column:
 
-## Routing
+```javascript
+  Rx.Observable.timer(0, 250)
+  .flatMapLatest(x => Rx.Observable.from([x]))
+  .subscribe(x => onvaluedown(x))
+```
 
-Any real app needs to deal with different views. _Routing_ is the technique
-of responding to changing in the URL and changing the view of the app.
+## Quick example
 
-This template uses the `route_hierarchical` package. Look inside `main.dart`
-for the route setup. It's very easy to extend.
+* Launch the app at http://www.igindo.com/rxsheet
+* Click once on the cell A1
+* Type GOOG
+* Click once on the cell B1
+* In the floating formula window dropdown, select "stock ticker"
+* The Google stock will now be refreshed on interval within cell B1
 
-Because this template isn't a full app framework (you should use
-AngularDart, Polymer, or other great options in http://pub.dartlang.org
-if you want a full app framework), the work of actually switching the views
-is simply changing the display properties of different divs. Look inside
-of `main.dart` for how different divs are displayed.
-
-The authors of this template believe in routing, but do admit there are
-more scalable ways to manage views.
-
-## Handing input
-
-Using `dart:html`, this template simply finds the necessary input fields
-via `querySelector` and binds to their keyUp events. Look inside
-`lub/reverser.dart` for an example.
-
-However, a real app framework will offer robust data binding.
+// note that the stock will only update live when the US stock market is open!

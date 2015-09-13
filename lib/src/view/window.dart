@@ -124,8 +124,10 @@ class Window extends DartFlexRootContainer {
   Future _loadExample(String fileName) async {
     final String exampleJs = await HttpRequest.getString(fileName);
     
-    if (sheet.lastEditedCell != null) methodField.text = exampleJs.replaceAll(new RegExp(r'\$[A-Z]+[\d]+'), '\$${sheet.lastEditedCell.id}');
-    else methodField.text = exampleJs;
+    /*if (sheet.lastEditedCell != null) methodField.text = exampleJs.replaceAll(new RegExp(r'\$[A-Z]+[\d]+'), '\$${sheet.lastEditedCell.id}');
+    else methodField.text = exampleJs;*/
+    
+    methodField.text = exampleJs;
     
     return null;
   }
