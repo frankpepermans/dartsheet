@@ -23,11 +23,7 @@ class HandleBar extends Group {
       _orientation = value;
       _isOrientationChanged = true;
 
-      notify(
-        new FrameworkEvent(
-          'orientationChanged'
-        )
-      );
+      notify('orientationChanged');
 
       invalidateProperties();
     }
@@ -44,11 +40,7 @@ class HandleBar extends Group {
     if (value != _indicatorSize) {
       _indicatorSize = value;
 
-      notify(
-        new FrameworkEvent(
-          'indicatorSizeChanged'
-        )
-      );
+      notify('indicatorSizeChanged');
 
       invalidateProperties();
     }
@@ -122,17 +114,14 @@ class HandleBar extends Group {
         document.onMouseUp.listen(_body_mouseUpHandler)
     );
     
-    notify(new FrameworkEvent('dragStart'));
+    notify('dragStart');
     
     event.relatedObject.preventDefault();
   }
   
   void _body_mouseMoveHandler(MouseEvent event) {
-    if (_orientation == 'horizontal') {
-      notify(new FrameworkEvent<int>('drag', relatedObject: event.movement.y));
-    } else {
-      notify(new FrameworkEvent<int>('drag', relatedObject: event.movement.x));
-    }
+    if (_orientation == 'horizontal') notify('drag', event.movement.y);
+    else notify('drag', event.movement.x);
     
     event.preventDefault();
   }
@@ -141,7 +130,7 @@ class HandleBar extends Group {
     streamSubscriptionManager.flushIdent('body-mouse-move');
     streamSubscriptionManager.flushIdent('body-mouse-up');
     
-    notify(new FrameworkEvent('dragEnd'));
+    notify('dragEnd');
     
     event.preventDefault();
   }

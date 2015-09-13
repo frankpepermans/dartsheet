@@ -9,7 +9,7 @@ class Formula extends EventDispatcherImpl {
   
   final Cell appliesTo;
   
-  JsObject subscription;
+  final List<JsObject> subscriptions = <JsObject>[];
   
   String _body;
   
@@ -18,7 +18,7 @@ class Formula extends EventDispatcherImpl {
     if (value != _body) {
       _body = _localize(value);
       
-      notify(new FrameworkEvent<String>('bodyChanged', relatedObject: value));
+      notify('bodyChanged', value);
     }
   }
   
@@ -29,7 +29,7 @@ class Formula extends EventDispatcherImpl {
     if (value != _originator) {
       _originator = value;
       
-      notify(new FrameworkEvent<Cell>('originatorChanged', relatedObject: value));
+      notify('originatorChanged', value);
     }
   }
   
@@ -49,6 +49,7 @@ class Formula extends EventDispatcherImpl {
     
     final JsFunctionBody jsf = new JsFunctionBody(appliesTo.value);
     final Map<String, String> argMap = <String, String>{};
+    final String newLine = new String.fromCharCode(13);
         
     _REGEXP_ID.allMatches(_body).forEach((Match M) {
       final String id = M.group(0);
@@ -58,12 +59,7 @@ class Formula extends EventDispatcherImpl {
       argMap[id] = '\$.$cellId';
     });
     
-    final List<String> lines = body.trim().split('\n');
-    final String newLine = new String.fromCharCode(13);
-    
-    lines[lines.length - 1] = 'return ${lines[lines.length - 1]}';
-    
-    String rawScript = 'function __${appliesTo.id}() { try {${newLine}var onvalue = onvalue_${appliesTo.id}${newLine}var oncss = oncss_${appliesTo.id}${newLine} ${lines.join(newLine)}${newLine}} catch (error) { console.log(error); } };';
+    String rawScript = 'function __${appliesTo.id}() { try {${newLine}var onvalue = onvalue_${appliesTo.id}${newLine}var oncss = oncss_${appliesTo.id}${newLine} $body${newLine}} catch (error) { console.log(error); } };';
     
     argMap.forEach((String K, String V) => rawScript = rawScript.replaceAll(K, V));
     
@@ -96,13 +92,11 @@ class Formula extends EventDispatcherImpl {
   }
   
   void cancelSubscription() {
-    if (subscription != null) {
-      try {
-        subscription.callMethod('dispose', []);
-      } catch (error) {}
-      
-      subscription = null;
-    }
+    try {
+      subscriptions.forEach((JsObject S) => S.callMethod('dispose', []));
+    } catch (error) {}
+    
+    subscriptions.clear();
   }
   
   String _localize(String value) {

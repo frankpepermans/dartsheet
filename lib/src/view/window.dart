@@ -6,7 +6,8 @@ class Window extends DartFlexRootContainer {
   HGroup worksheetGroup;
   FloatingWindow methodFieldFloater;
   ValueEntry valueEntry;
-  EditableTextArea methodField;
+  Dropdown examples;
+  FormulaBox methodField;
   WorkSheet sheet;
   
   Window(String elementId) : super(elementId: elementId) {
@@ -38,14 +39,17 @@ class Window extends DartFlexRootContainer {
       ..onClose.listen((FrameworkEvent event) => (event.currentTarget as FloatingWindow).visible = false);
     
     valueEntry = new ValueEntry()
+      ..width = 100
+      ..percentHeight = 100.0;
+    
+    examples = new Dropdown()
       ..percentWidth = 100.0
       ..percentHeight = 100.0
-      ..onValueInput.listen(_valueField_inputHandler)
-      ..onFocus.listen(
-          (_) => notify(new FrameworkEvent('valueEntryFocus'))
-      );
+      ..dataProvider = new ObservableList<String>.from(const <String>['examples/yahoo.finance.quotes.js', 'examples/yahoo.finance.quotes.js', 'examples/yahoo.finance.quotes.js'])
+      ..itemRendererFactory = new ItemRendererFactory<LabelItemRenderer>(constructorMethod: LabelItemRenderer.construct)
+      ..onSelectedItemChanged.listen(_loadExample);
     
-    methodField = new EditableTextArea()
+    methodField = new FormulaBox()
       ..className = 'method-field'
       ..percentWidth = 100.0
       ..percentHeight = 100.0
@@ -58,16 +62,17 @@ class Window extends DartFlexRootContainer {
       ..percentWidth = 100.0
       ..percentHeight = 100.0
       ..onSelectedCellsChanged.listen(_handleCellSelection)
-      ..onValueEntryFocus.listen(
-          (_) => methodFieldFloater.visible = true
-      );
+      ..onSelectionStart.listen((_) => reflowManager.invalidateCSS(methodFieldFloater.control, 'z-index', '-1'))
+      ..onSelectionEnd.listen((_) => reflowManager.invalidateCSS(methodFieldFloater.control, 'z-index', '99999'));
     
     worksheetGroup.addComponent(sheet);
     
-    //addComponent(menuGroup);
     addComponent(worksheetGroup);
     
     methodFieldFloater.addHeaderComponent(valueEntry);
+    methodFieldFloater.addHeaderComponent(new Spacer()..width = 1);
+    methodFieldFloater.addHeaderComponent(examples);
+    
     methodFieldFloater.addComponent(methodField);
     
     addComponent(methodFieldFloater);
@@ -81,9 +86,14 @@ class Window extends DartFlexRootContainer {
   }
   
   void _handleCellSelection(FrameworkEvent<List<Cell>> event) {
-    valueEntry.value = sheet.selectedCells.isNotEmpty ? sheet.selectedCells.first.value : '';
+    if (sheet.selectedCells.length >= 2)
+      valueEntry.value = '${sheet.selectedCells.first.id} - ${sheet.selectedCells.last.id}';
+    else if (sheet.selectedCells.isNotEmpty)
+      valueEntry.value = sheet.selectedCells.first.id;
+    else
+      valueEntry.value = '';
     
-    methodField.enabled = true;
+    methodField.enabled = methodFieldFloater.visible = true;
     
     if (event.relatedObject.length > 1) return;
     
@@ -91,8 +101,11 @@ class Window extends DartFlexRootContainer {
     else methodField.text = '';
   }
   
-  void _valueField_inputHandler(FrameworkEvent<String> event) {
-    if (sheet.selectedCells != null && sheet.selectedCells.isNotEmpty)
-      sheet.selectedCells.first.value = event.relatedObject;
+  Future _loadExample(FrameworkEvent<String> event) async {
+    final String exampleJs = await HttpRequest.getString(event.relatedObject);
+    
+    if (sheet.lastEditedCell != null) methodField.text = exampleJs.replaceAll(new RegExp(r'\$[A-Z]+[\d]+'), '\$${sheet.lastEditedCell.id}');
+    
+    return null;
   }
 }

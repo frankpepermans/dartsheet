@@ -1,6 +1,7 @@
 library dartsheet.view;
 
 import 'dart:async';
+import 'dart:convert';
 import 'dart:html';
 import 'dart:js';
 import 'dart:math';
@@ -18,6 +19,7 @@ part 'view/work_sheet.dart';
 part 'view/spreadsheet.dart';
 part 'view/cell_data_grid_column.dart';
 
+part 'view/components/formula_box.dart';
 part 'view/components/value_entry.dart';
 
 part 'view/item-renderers/cell_item_renderer.dart';

@@ -24,9 +24,7 @@ class Row<E extends Cell> extends EventDispatcherImpl {
     if (value != _highlighted) {
       _highlighted = value;
       
-      notify(
-          new FrameworkEvent<bool>('highlightedChanged', relatedObject: value)    
-      );
+      notify('highlightedChanged', value);
     }
   }
   

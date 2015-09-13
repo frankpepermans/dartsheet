@@ -3,8 +3,10 @@
 
 import 'package:dartsheet/dartsheet.dart';
 
+Window mainWindow;
+
 void main() {
-  new Window('#application')
+  mainWindow = new Window('#spreadsheet-app')
     ..percentWidth = 100.0
     ..percentHeight = 100.0;
 }

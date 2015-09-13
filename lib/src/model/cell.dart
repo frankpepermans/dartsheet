@@ -41,7 +41,7 @@ class Cell<V> extends EventDispatcherImpl {
       context.callMethod('__updateCellStream', [cellId, newValue]);
       context.callMethod('__updateCellStream', ['R${rowIndex + 1}', newValue]);
       
-      notify(new FrameworkEvent<V>('valueChanged', relatedObject: newValue));
+      notify('valueChanged', newValue);
     }
   }
   
@@ -60,9 +60,7 @@ class Cell<V> extends EventDispatcherImpl {
     if (value != _selected) {
       _selected = value;
       
-      notify(
-          new FrameworkEvent<bool>('selectionChanged', relatedObject: value)    
-      );
+      notify('selectionChanged', value);
     }
   }
   
@@ -77,9 +75,7 @@ class Cell<V> extends EventDispatcherImpl {
     if (value != _selectionOutline) {
       _selectionOutline = value;
       
-      notify(
-          new FrameworkEvent<int>('selectionOutlineChanged', relatedObject: value)    
-      );
+      notify('selectionOutlineChanged', value);
     }
   }
   
@@ -94,9 +90,7 @@ class Cell<V> extends EventDispatcherImpl {
     if (value != _selectionLockOutline) {
       _selectionLockOutline = value;
       
-      notify(
-          new FrameworkEvent<int>('selectionLockOutlineChanged', relatedObject: value)    
-      );
+      notify('selectionLockOutlineChanged', value);
     }
   }
   
@@ -111,9 +105,7 @@ class Cell<V> extends EventDispatcherImpl {
     if (value != _isSelectionDragTargetShown) {
       _isSelectionDragTargetShown = value;
       
-      notify(
-          new FrameworkEvent<bool>('isSelectionDragTargetShownChanged', relatedObject: value)    
-      );
+      notify('isSelectionDragTargetShownChanged', value);
     }
   }
   
@@ -128,9 +120,7 @@ class Cell<V> extends EventDispatcherImpl {
     if (value != _focused) {
       _focused = value;
       
-      notify(
-          new FrameworkEvent<bool>('focusChanged', relatedObject: value)    
-      );
+      notify('focusChanged', value);
     }
   }
   
@@ -145,9 +135,7 @@ class Cell<V> extends EventDispatcherImpl {
     if (value != _style) {
       _style = value;
       
-      notify(
-          new FrameworkEvent<JsObject>('styleChanged', relatedObject: value)    
-      );
+      notify('styleChanged', value);
     }
   }
   

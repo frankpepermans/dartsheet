@@ -3,7 +3,8 @@ part of dartsheet.view;
 class WorkSheet extends VGroup {
   
   @event Stream<FrameworkEvent<List<Cell>>> onSelectedCellsChanged;
-  @event Stream<FrameworkEvent<List<Cell>>> onValueEntryFocus;
+  @event Stream<FrameworkEvent<List<Cell>>> onSelectionStart;
+  @event Stream<FrameworkEvent<List<Cell>>> onSelectionEnd;
   
   //---------------------------------
   //
@@ -15,6 +16,8 @@ class WorkSheet extends VGroup {
   final int initCols;
   
   final Map<String, JsObject> _rxSteams = <String, JsObject>{};
+  
+  Cell lastEditedCell;
   
   operations.OperationsManager _operationsManager;
   
@@ -44,6 +47,8 @@ class WorkSheet extends VGroup {
   
   WorkSheet(this.initRows, this.initCols) : super() {
     _operationsManager = new operations.OperationsManager(this);
+    
+    context['__registerNewRxSubscription'] = _registerNewRxSubscription;
   }
   
   //---------------------------------
@@ -145,7 +150,7 @@ class WorkSheet extends VGroup {
     formula.cancelSubscription();
     
     try {
-      final String es5body = context['babel'].callMethod('transform', [jsf.value])['code'];
+      final String es5body = context['babel'].callMethod('transform', [jsf.value])['code'].replaceAll('.subscribe(', '.__subscribe("${formula.appliesTo.id}", ');
       
       formula.appliesTo.scriptElement = new ScriptElement()..innerHtml = es5body;
       
@@ -163,10 +168,11 @@ class WorkSheet extends VGroup {
         return yieldValue;
       };
       
-      formula.subscription = context.callMethod('__${formula.appliesTo.id}', []) as JsObject;
+      context.callMethod('__${formula.appliesTo.id}', []);
       
       print('ES6 successful: ' + es5body);
     } catch (error) {
+      print('Failed to convert to ES6: ' + jsf.value);
       print('Failed to convert to ES6: ' + error);
       
       formula.appliesTo.value = null;
@@ -243,6 +249,8 @@ class WorkSheet extends VGroup {
         _lockedCells = null;
         
         mouseUpSubscription.cancel();
+        
+        notify('selectionEnd');
       });
     }
     
@@ -252,6 +260,20 @@ class WorkSheet extends VGroup {
   Cell getCell(int row, int col) {
     if (row >= 0 && row < spreadsheet.dataProvider.length && col >= 0 && col < spreadsheet.columns.length)
       return (spreadsheet.dataProvider as ObservableList<Row<Cell>>)[row].cells[col];
+    
+    return null;
+  }
+  
+  Cell getCellById(String cellId) {
+    for (int i=0, len=spreadsheet.dataProvider.length; i<len; i++) {
+      Row<Cell> row = spreadsheet.dataProvider[i];
+      
+      for (int j=0, len2=row.cells.length; j<len2; j++) {
+        Cell cell = row.cells[j];
+        
+        if (cell.id == cellId) return cell;
+      }
+    }
     
     return null;
   }
@@ -302,7 +324,8 @@ class WorkSheet extends VGroup {
   }
   
   Cell _createCell(String id, int rowIndex, int colIndex) {
-    final Cell cell = new Cell(id, spreadsheet.cells.length, rowIndex, colIndex, null);
+    final Cell cell = new Cell(id, spreadsheet.cells.length, rowIndex, colIndex, null)
+      ..onValueChanged.listen((FrameworkEvent event) => lastEditedCell = event.currentTarget as Cell);
     
     spreadsheet.cells.add(cell);
     
@@ -541,7 +564,9 @@ class WorkSheet extends VGroup {
     
     _updateOverlay();
     
-    notify(new FrameworkEvent<List<Cell>>('selectedCellsChanged', relatedObject: _selectedCells));
+    notify('selectedCellsChanged', _selectedCells);
+    
+    if (_selectedCells.length > 1) notify('selectionStart');
   }
   
   void _hHandleBar_dragHandler(FrameworkEvent<int> event) {
@@ -577,4 +602,6 @@ class WorkSheet extends VGroup {
         
     invalidateLayout();
   }
+  
+  void _registerNewRxSubscription(String cellId, JsObject subscription) => getCellById(cellId).formula.subscriptions.add(subscription);
 }

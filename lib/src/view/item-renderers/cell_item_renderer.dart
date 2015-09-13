@@ -53,7 +53,9 @@ class CellItemRenderer<D extends Cell<String>> extends EditableLabelItemRenderer
   //
   //---------------------------------
 
-  CellItemRenderer() : super();
+  CellItemRenderer() : super() {
+    className = 'cell-item-renderer';
+  }
 
   static CellItemRenderer construct() => new CellItemRenderer();
 
@@ -149,6 +151,6 @@ class CellItemRenderer<D extends Cell<String>> extends EditableLabelItemRenderer
     
     event.stopImmediatePropagation();
     
-    notify(new FrameworkEvent('selectionDrag', relatedObject: this));
+    notify('selectionDrag', this);
   }
 }
