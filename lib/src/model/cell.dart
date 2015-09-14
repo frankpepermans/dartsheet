@@ -191,4 +191,12 @@ class Cell<V> extends EventDispatcherImpl {
     
     return F;
   }
+  
+  bool isEmpty() => (_value == null && (_formula == null || _formula.isEmpty()));
+  
+  Map<String, dynamic> mappify() => {
+      'id': id,
+      'value': _value,
+      'formula': _formula._body
+    };
 }

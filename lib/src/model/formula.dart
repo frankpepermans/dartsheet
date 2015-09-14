@@ -99,6 +99,8 @@ class Formula extends EventDispatcherImpl {
     subscriptions.clear();
   }
   
+  bool isEmpty() => (_body == null || _body.trim().isEmpty);
+  
   String _localize(String value) {
     if (value == null) return null;
     

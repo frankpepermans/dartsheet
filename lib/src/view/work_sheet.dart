@@ -243,6 +243,29 @@ class WorkSheet extends VGroup {
     }
   }
   
+  String save() {
+    final ObservableList<Row<Cell>> dataProvider = spreadsheet.dataProvider as ObservableList<Row<Cell>>;
+    final List<Map<String, dynamic>> list = <Map<String, dynamic>>[];
+    
+    dataProvider.forEach((Row<Cell> row) {
+      row.cells.forEach((Cell cell) {
+        if (!cell.isEmpty()) list.add(cell.mappify());
+      });
+    });
+    
+    return JSON.encode(list);
+  }
+  
+  void load(String data) {
+    final List<Map<String, dynamic>> list = JSON.decode(data);
+    
+    list.forEach((Map<String, dynamic> entry) => 
+        getCellById(entry['id'])
+      ..value = entry['value']
+      ..formula.body = entry['formula']
+    );
+  }
+  
   void selectCell(CellItemRenderer<Cell> target, {bool isSelectionStart: false}) {
     StreamSubscription mouseUpSubscription;
     
