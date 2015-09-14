@@ -4,7 +4,7 @@ $A1.flatMapLatest((stockName) =>
    .flatMapLatest(yql => Rx.Observable.from(['https://query.yahooapis.com/v1/public/yql?q=' + yql + '&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys&callback=']))
    .flatMapLatest(url => Rx.DOM.ajax({url: url, responseType: 'json', crossDomain: true}))
    .pluck('response', 'query', 'results', 'quote', 'LastTradePriceOnly')
-   .bufferWithCount(2)
+   .bufferWithCount(2, 1)
    .retry()
 ).subscribe(function (n) {
    oncss({'background-color': (n[0] > n[1]) ? '#cfc' : (n[0] < n[1]) ? '#fcc' : '#fff'})

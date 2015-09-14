@@ -15,5 +15,9 @@
   {
     "title": "column listener",
     "fileName": "examples/simple.column.listener.js"
+  },
+  {
+    "title": "combined value",
+    "fileName": "examples/simple.cell.combine.js"
   }
 ]
