@@ -403,6 +403,9 @@ select > option {
           transition-delay: .1s;
 }
 
+.script-validation-renderer {
+}
+
 .date-time-chooser-element {
   -webkit-appearance: none;
      -moz-appearance: none;

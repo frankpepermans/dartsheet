@@ -24,3 +24,4 @@ part 'view/components/value_entry.dart';
 
 part 'view/item-renderers/cell_item_renderer.dart';
 part 'view/item-renderers/row_item_renderer.dart';
+part 'view/item-renderers/script_validation_renderer.dart';

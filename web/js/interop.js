@@ -23,3 +23,14 @@ function __updateCellStream(id, value) {
 		$[id].onNext(value);
 	} catch (error) {}
 }
+
+function __getMergedStream() {
+	var list = [];
+	
+	if (arguments.length == 0) return null;
+	if (arguments.length == 1) return $[arguments[0]];
+	
+	for (var i=0, len=arguments.length; i<len; i++) list.push($[arguments[i]]);
+	
+	return Rx.Observable.merge(list).shareReplay(1);
+}

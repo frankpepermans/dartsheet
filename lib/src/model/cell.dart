@@ -10,6 +10,8 @@ class Cell<V> extends EventDispatcherImpl {
   @event Stream<FrameworkEvent<int>> onIsSelectionDragTargetShownChanged;
   @event Stream<FrameworkEvent<JsObject>> onStyleChanged;
   
+  bool _hasRxStreams = false;
+  
   //---------------------------------
   //
   // Public properties
@@ -34,12 +36,7 @@ class Cell<V> extends EventDispatcherImpl {
     if (newValue != value) {
       _value = newValue;
       
-      //cell$.callMethod('onNext', [newValue]);
-      final String cellId = new String.fromCharCode(colIndex + 65);
-      
-      context.callMethod('__updateCellStream', [id, newValue]);
-      context.callMethod('__updateCellStream', [cellId, newValue]);
-      context.callMethod('__updateCellStream', ['R${rowIndex + 1}', newValue]);
+      _pushToStream();
       
       notify('valueChanged', newValue);
     }
@@ -149,9 +146,6 @@ class Cell<V> extends EventDispatcherImpl {
     _formula = new Formula(this);
     
     value = initialValue;
-    
-    cell$ = context.callMethod('__createCellStream', [id]);
-    cellClick$ = context.callMethod('__createCellStream', ['${id}_click']);
   }
   
   factory Cell.fromOtherCell(Cell cell) {
@@ -167,6 +161,17 @@ class Cell<V> extends EventDispatcherImpl {
   // Public methods
   //
   //---------------------------------
+  
+  void toRxStreams() {
+    if (!_hasRxStreams) {
+      cell$ = context.callMethod('__createCellStream', [id]);
+      cellClick$ = context.callMethod('__createCellStream', ['${id}_click']);
+      
+      _hasRxStreams = true;
+      
+      _pushToStream();
+    }
+  }
   
   void copyFrom(Cell otherCell, Cell originator, String formulaBody) {
     _formula.originator = originator;
@@ -190,6 +195,16 @@ class Cell<V> extends EventDispatcherImpl {
     } catch (error) {}
     
     return F;
+  }
+  
+  void _pushToStream() {
+    if (_hasRxStreams) {
+      final String cellId = new String.fromCharCode(colIndex + 65);
+      
+      context.callMethod('__updateCellStream', [id, _value]);
+      context.callMethod('__updateCellStream', [cellId, _value]);
+      context.callMethod('__updateCellStream', ['R${rowIndex + 1}', _value]);
+    }
   }
   
   bool isEmpty() => (_value == null && (_formula == null || _formula.isEmpty()));

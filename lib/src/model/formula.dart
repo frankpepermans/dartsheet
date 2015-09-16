@@ -4,8 +4,7 @@ class Formula extends EventDispatcherImpl {
   
   @event Stream<FrameworkEvent<String>> onBodyChanged;
   @event Stream<FrameworkEvent<Cell>> onOriginatorChanged;
-  
-  static final RegExp _REGEXP_ID = new RegExp(r'\$[A-Z]+[\d]*');
+  @event Stream<FrameworkEvent<bool>> onValidationChanged;
   
   final Cell appliesTo;
   
@@ -33,6 +32,17 @@ class Formula extends EventDispatcherImpl {
     }
   }
   
+  bool _isValid = true;
+  
+  bool get isValid => _isValid;
+  void set isValid(bool value) {
+    if (value != _isValid) {
+      _isValid = value;
+      
+      notify('validationChanged', value);
+    }
+  }
+  
   Formula(this.appliesTo);
   
   factory Formula.from(Formula formula, Cell appliesTo) {
@@ -50,14 +60,6 @@ class Formula extends EventDispatcherImpl {
     final JsFunctionBody jsf = new JsFunctionBody(appliesTo.value);
     final Map<String, String> argMap = <String, String>{};
     final String newLine = new String.fromCharCode(13);
-        
-    _REGEXP_ID.allMatches(_body).forEach((Match M) {
-      final String id = M.group(0);
-      
-      String cellId = id.substring(1);
-      
-      argMap[id] = '\$.$cellId';
-    });
     
     String rawScript = 'function __${appliesTo.id}() { try {${newLine}var onvalue = onvalue_${appliesTo.id}${newLine}var onvaluedown = onvaluedown_${appliesTo.id}${newLine}var oncss = oncss_${appliesTo.id}${newLine} $body${newLine}} catch (error) { console.log(error); } };';
     
@@ -104,21 +106,18 @@ class Formula extends EventDispatcherImpl {
   String _localize(String value) {
     if (value == null) return null;
     
+    final RegExp cellRegExp = new RegExp(r"Cell\([']{1}([a-zA-Z,:\s\d]+)[']{1}\)");
+    final Selector S = new Selector();
     int offset = 0;
         
-    _REGEXP_ID.allMatches(value).forEach((Match M) {
-      final String id = M.group(0);
+    cellRegExp.allMatches(value).forEach((Match M) {
+      final String selector = M.group(1);
       
-      String cellId = id.substring(1);
+      final String localSelector = S.transformCellSelector(selector, appliesTo.rowIndex - _originator.rowIndex, appliesTo.colIndex - _originator.colIndex);
       
-      int rowIndex = toRowIndex(cellId);
-      int colIndex = toColIndex(cellId);
+      value = value.substring(0, M.start + offset) + 'Cell(\'$localSelector\')' + value.substring(M.end + offset);
       
-      final String localCellId = (rowIndex < 0) ? cellId : toCellIdentity(rowIndex + appliesTo.rowIndex - _originator.rowIndex, colIndex + appliesTo.colIndex - _originator.colIndex);
-      
-      value = value.substring(0, M.start + offset) + '\$' + localCellId + value.substring(M.end + offset);
-      
-      offset += localCellId.length - cellId.length;
+      offset += localSelector.length - selector.length;
     });
     
     return value;

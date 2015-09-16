@@ -8,6 +8,7 @@ class Window extends DartFlexRootContainer {
   ValueEntry valueEntry;
   Dropdown examples;
   FormulaBox methodField;
+  ScriptValidationRenderer<Formula> scriptValidationRenderer;
   WorkSheet sheet;
   
   Window(String elementId) : super(elementId: elementId) {
@@ -63,7 +64,12 @@ class Window extends DartFlexRootContainer {
       ..percentHeight = 100.0
       ..onSelectedCellsChanged.listen(_handleCellSelection)
       ..onSelectionStart.listen((_) => reflowManager.invalidateCSS(methodFieldFloater.control, 'z-index', '-1'))
-      ..onSelectionEnd.listen((_) => reflowManager.invalidateCSS(methodFieldFloater.control, 'z-index', '99999'));
+      ..onSelectionEnd.listen((_) => reflowManager.invalidateCSS(methodFieldFloater.control, 'z-index', '99999'))
+      ..onScriptValidationChanged.listen(_handleScriptValidation);
+    
+    scriptValidationRenderer = new ScriptValidationRenderer<Formula>()
+      ..percentWidth = 100.0
+      ..percentHeight = 100.0;
     
     worksheetGroup.addComponent(sheet);
     
@@ -74,6 +80,8 @@ class Window extends DartFlexRootContainer {
     methodFieldFloater.addHeaderComponent(examples);
     
     methodFieldFloater.addComponent(methodField);
+    
+    methodFieldFloater.addFooterComponent(scriptValidationRenderer);
     
     addComponent(methodFieldFloater);
     
@@ -102,6 +110,12 @@ class Window extends DartFlexRootContainer {
     
     if (event.relatedObject.isNotEmpty) methodField.text = event.relatedObject.first.formula.body;
     else methodField.text = '';
+    
+    scriptValidationRenderer.data = event.relatedObject.first.formula;
+  }
+  
+  void _handleScriptValidation(FrameworkEvent<Formula> event) {
+    scriptValidationRenderer.data = event.relatedObject;
   }
   
   void _dropdown_selectionHandler(FrameworkEvent<String> event) {

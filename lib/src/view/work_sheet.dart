@@ -5,6 +5,7 @@ class WorkSheet extends VGroup {
   @event Stream<FrameworkEvent<List<Cell>>> onSelectedCellsChanged;
   @event Stream<FrameworkEvent<List<Cell>>> onSelectionStart;
   @event Stream<FrameworkEvent<List<Cell>>> onSelectionEnd;
+  @event Stream<FrameworkEvent<Formula>> onScriptValidationChanged;
   
   //---------------------------------
   //
@@ -14,8 +15,6 @@ class WorkSheet extends VGroup {
   
   final int initRows;
   final int initCols;
-  
-  final Map<String, JsObject> _rxSteams = <String, JsObject>{};
   
   Cell lastEditedCell;
   
@@ -49,6 +48,10 @@ class WorkSheet extends VGroup {
     _operationsManager = new operations.OperationsManager(this);
     
     context['__registerNewRxSubscription'] = _registerNewRxSubscription;
+    context["Cell"] = _cellStreamHandler;
+    context["CellClick"] = _cellClickStreamHandler;
+    context["Row"] = _rowStreamHandler;
+    context["Column"] = _columnStreamHandler;
   }
   
   //---------------------------------
@@ -143,6 +146,8 @@ class WorkSheet extends VGroup {
   Future invalidateFormula(Formula formula) async {
     await formula.appliesTo.clearSiblingSubscriptions();
     
+    formula.isValid = true;
+    
     final JsFunctionBody jsf = formula.getJavaScriptFunctionBody(spreadsheet.dataProvider, formula.appliesTo.siblingSubscriptions);
     
     if (formula.appliesTo.scriptElement != null) formula.appliesTo.scriptElement.remove();
@@ -185,13 +190,17 @@ class WorkSheet extends VGroup {
       
       context.callMethod('__${formula.appliesTo.id}', []);
       
-      print('ES6 successful: ' + es5body);
+      //print('ES6 successful: ' + es5body);
     } catch (error) {
-      print('Failed to convert to ES6: ' + jsf.value);
+      //print('Failed to convert to ES6: ' + jsf.value);
       print('Failed to convert to ES6: ' + error);
       
       formula.appliesTo.value = null;
+      
+      formula.isValid = false;
     }
+    
+    notify('scriptValidationChanged', formula);
   }
   
   @override
@@ -352,12 +361,6 @@ class WorkSheet extends VGroup {
     
     for (int i=0; i<initCols; i++) row.cells.add(_createCell(toCellIdentity(rowIndex, i), rowIndex, i));
     
-    if (rowIndex == 0) {
-      final String rowId = '${rowIndex + 1}R';
-      
-      _rxSteams[rowId] = context.callMethod('__createCellStream', [rowId]);
-    }
-    
     return row;
   }
   
@@ -368,12 +371,6 @@ class WorkSheet extends VGroup {
     spreadsheet.cells.add(cell);
     
     cell.formula.onBodyChanged.listen((FrameworkEvent<String> event) => invalidateFormula(event.currentTarget as Formula));
-    
-    if (rowIndex == 0) {
-      final String cellId = new String.fromCharCode(colIndex + 65);
-      
-      _rxSteams[cellId] = context.callMethod('__createCellStream', [cellId]);
-    }
     
     return cell;
   }
@@ -649,4 +646,31 @@ class WorkSheet extends VGroup {
   }
   
   void _registerNewRxSubscription(String cellId, JsObject subscription) => getCellById(cellId).formula.subscriptions.add(subscription);
+
+  JsObject _cellStreamHandler(String selector, {bool forClick: false}) {
+    // Cell("A:C, 1:10") => A1 to C10 inclusive
+    final Selector S = new Selector();
+    final List<String> cellIds = S.fromCellSelector(selector, getCell, forClick: forClick);
+    final Cell cellConflict = _selectedCells.firstWhere((Cell cell) {
+        return cellIds.where((String id) => cell.id == id).isNotEmpty;
+      }, orElse: () => null);
+    
+    if (cellConflict != null) {
+      cellConflict.formula.isValid = false;
+      
+      return null;
+    }
+    
+    return context.callMethod('__getMergedStream', cellIds);
+  }
+  
+  JsObject _cellClickStreamHandler(String selector) => _cellStreamHandler(selector, forClick: true);
+  
+  void _rowStreamHandler(String selector) {
+    
+  }
+  
+  void _columnStreamHandler(String selector) {
+    
+  }
 }
