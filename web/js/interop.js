@@ -32,5 +32,5 @@ function __getMergedStream() {
 	
 	for (var i=0, len=arguments.length; i<len; i++) list.push($[arguments[i]]);
 	
-	return Rx.Observable.merge(list).shareReplay(1);
+	return Rx.Observable.merge(list);
 }
