@@ -9,6 +9,16 @@ class Selector {
     if (pairs.length % 2 == 0) for (int i=0, len=pairs.length; i<len; i+=2) {
       final String cols = pairs[i].trim(), rows = pairs[i + 1].trim();
       final List<String> colRange = cols.split(':'), rowRange = rows.split(':');
+      final int minColNumber = colRange.first.trim().toUpperCase().codeUnitAt(0);
+      final int maxColNumber = colRange.last.trim().toUpperCase().codeUnitAt(0);
+      final int minRowNumber = int.parse(rowRange.first.trim());
+      final int maxRowNumber = int.parse(rowRange.last.trim());
+      
+      for (int j=minColNumber + 1, len2=maxColNumber-minColNumber+65; j<=len2; j++)
+        colRange.add(new String.fromCharCode(j));
+      
+      for (int j=minRowNumber + 1, len2=maxRowNumber-minRowNumber; j<=len2; j++)
+        rowRange.add(j.toString());
       
       colRange.forEach((String col) {
         final int colNumber = col.trim().toUpperCase().codeUnitAt(0) - 65;
