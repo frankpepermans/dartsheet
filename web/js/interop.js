@@ -32,5 +32,5 @@ function __getMergedStream() {
 	
 	for (var i=0, len=arguments.length; i<len; i++) list.push($[arguments[i]]);
 	
-	return Rx.Observable.merge(list);
+	return Rx.Observable.combineLatest(list).bufferWithCount(1).flatMapLatest(function(x) { return x; });
 }

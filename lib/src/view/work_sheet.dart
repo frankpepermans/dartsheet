@@ -188,7 +188,7 @@ class WorkSheet extends VGroup {
         return yieldValue;
       };
       
-      context.callMethod('__${formula.appliesTo.id}', []);
+      formula.isValid = context.callMethod('__${formula.appliesTo.id}', []);
       
       //print('ES6 successful: ' + es5body);
     } catch (error) {

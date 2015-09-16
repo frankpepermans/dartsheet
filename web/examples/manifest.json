@@ -5,6 +5,10 @@
     "loadByDefault": true
   },
   {
+    "title": "sum",
+    "fileName": "examples/sum.js"
+  },
+  {
     "title": "stock ticker",
     "fileName": "examples/yahoo.finance.quotes.js"
   },

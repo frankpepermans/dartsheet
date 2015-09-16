@@ -404,6 +404,10 @@ select > option {
 }
 
 .script-validation-renderer {
+  -webkit-transition: background-color .5s ease-out;
+     -moz-transition: background-color .5s ease-out;
+       -o-transition: background-color .5s ease-out;
+          transition: background-color .5s ease-out;
 }
 
 .date-time-chooser-element {

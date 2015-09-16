@@ -61,7 +61,7 @@ class Formula extends EventDispatcherImpl {
     final Map<String, String> argMap = <String, String>{};
     final String newLine = new String.fromCharCode(13);
     
-    String rawScript = 'function __${appliesTo.id}() { try {${newLine}var onvalue = onvalue_${appliesTo.id}${newLine}var onvaluedown = onvaluedown_${appliesTo.id}${newLine}var oncss = oncss_${appliesTo.id}${newLine} $body${newLine}} catch (error) { console.log(error); } };';
+    String rawScript = 'function __${appliesTo.id}() { try {${newLine}var onvalue = onvalue_${appliesTo.id}${newLine}var onvaluedown = onvaluedown_${appliesTo.id}${newLine}var oncss = oncss_${appliesTo.id}${newLine} $body${newLine}} catch (error) { console.log(error); return false; } return true; };';
     
     argMap.forEach((String K, String V) => rawScript = rawScript.replaceAll(K, V));
     
