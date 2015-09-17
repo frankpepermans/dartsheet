@@ -252,6 +252,36 @@ class WorkSheet extends VGroup {
     }
   }
   
+  void saveToFile() {
+    final String json = save();
+    final Blob blob = new Blob(<String>[json], 'text/plain', 'native');
+    final String url = Url.createObjectUrlFromBlob(blob);
+    final AnchorElement link = new AnchorElement()
+      ..href = url
+      ..download = 'rxsheet.json';
+    
+    link.click();
+  }
+  
+  void loadFromFile() {
+    InputElement dialog = new InputElement(type: 'file');
+    
+    dialog.onChange.listen((Event event) {
+      final File file = dialog.files.first;
+      final FileReader reader = new FileReader();
+      
+      reader.readAsText(file);
+      
+      reader.onLoadEnd.listen((ProgressEvent E) {
+        load(reader.result);
+      });
+      
+      event.preventDefault();
+    });
+    
+    dialog.click();
+  }
+  
   String save() {
     final ObservableList<Row<Cell>> dataProvider = spreadsheet.dataProvider as ObservableList<Row<Cell>>;
     final List<Map<String, dynamic>> list = <Map<String, dynamic>>[];
@@ -270,8 +300,9 @@ class WorkSheet extends VGroup {
     
     list.forEach((Map<String, dynamic> entry) => 
         getCellById(entry['id'])
-      ..value = entry['value']
-      ..formula.body = entry['formula']
+        ..value = entry['value']
+        ..formula.originator = getCellById(entry['originator'])
+        ..formula.body = entry['formula']
     );
   }
   

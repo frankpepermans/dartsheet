@@ -9,6 +9,10 @@
     "fileName": "examples/sum.js"
   },
   {
+    "title": "average",
+    "fileName": "examples/average.js"
+  },
+  {
     "title": "stock ticker",
     "fileName": "examples/yahoo.finance.quotes.js"
   },

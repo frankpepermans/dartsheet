@@ -54,8 +54,6 @@ class ValueEntry extends HGroup {
   void commitProperties() {
     super.commitProperties();
     
-    if (valueField != null) {
-      valueField.text = _value;
-    }
+    if (valueField != null) valueField.text = _value;
   }
 }

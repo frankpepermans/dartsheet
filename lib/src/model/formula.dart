@@ -71,7 +71,7 @@ class Formula extends EventDispatcherImpl {
   }
   
   int toColIndex(String id) {
-    final RegExp re = new RegExp(r'[A-Z]+');
+    final RegExp re = new RegExp(r'[A-Z]+', caseSensitive:false);
     final Match match = re.firstMatch(id);
     
     if (match != null) {
@@ -106,21 +106,11 @@ class Formula extends EventDispatcherImpl {
   String _localize(String value) {
     if (value == null) return null;
     
-    final RegExp cellRegExp = new RegExp(r"Cell\([']{1}([a-zA-Z,:\s\d]+)[']{1}\)");
     final Selector S = new Selector();
-    int offset = 0;
-        
-    cellRegExp.allMatches(value).forEach((Match M) {
-      final String selector = M.group(1);
-      
-      final String localSelector = S.transformCellSelector(selector, appliesTo.rowIndex - _originator.rowIndex, appliesTo.colIndex - _originator.colIndex);
-      
-      value = value.substring(0, M.start + offset) + 'Cell(\'$localSelector\')' + value.substring(M.end + offset);
-      
-      offset += localSelector.length - selector.length;
-    });
     
-    return value;
+    return value.replaceAllMapped(new RegExp(r"Cell\([']{0,1}([A-Z,:\s\d]+)[']{0,1}\)", multiLine:true, caseSensitive:false), (Match M) =>
+      'Cell(\'${S.transformCellSelector(M.group(1), appliesTo.rowIndex - _originator.rowIndex, appliesTo.colIndex - _originator.colIndex)}\')'
+    );
   }
 }
 

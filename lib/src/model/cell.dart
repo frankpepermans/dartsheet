@@ -212,6 +212,7 @@ class Cell<V> extends EventDispatcherImpl {
   Map<String, dynamic> mappify() => {
       'id': id,
       'value': _value,
-      'formula': _formula._body
+      'formula': _formula._body,
+      'originator': (_formula.originator != null) ? _formula.appliesTo.id : null
     };
 }

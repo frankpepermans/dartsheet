@@ -163,15 +163,16 @@ input[type=number]::-webkit-outer-spin-button {
   -webkit-box-sizing:border-box;
   outline: none;
   border: 0;
-  border-right: 1px solid #808080;
+  border-right: 1px dashed #808080;
   border-bottom: 1px dashed #808080;
   pointer-events: none;
-  font-size: 1.1em;
+  font-size: 0.9em;
   font-family: monospace;
   background-color: #333;
   color: #fff;
-  border-radius: 12px 12px 0 0;
-  padding-left: 16px;
+  border-radius: 12px 0 0 0;
+  padding-left: 8px;
+  padding-top: 2px;
 }
 
 ::-moz-focus-inner {
@@ -427,7 +428,6 @@ select > option {
   border: none;
   border-bottom: 1px dashed #808080;
   outline: none;
-  border-radius: 12px 0 0 0;
               box-sizing:border-box;
      -moz-box-sizing:border-box;
   -webkit-box-sizing:border-box;

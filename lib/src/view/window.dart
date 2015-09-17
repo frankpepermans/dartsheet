@@ -40,7 +40,7 @@ class Window extends DartFlexRootContainer {
       ..onClose.listen((FrameworkEvent event) => (event.currentTarget as FloatingWindow).visible = false);
     
     valueEntry = new ValueEntry()
-      ..width = 100
+      ..width = 120
       ..percentHeight = 100.0;
     
     examples = new Dropdown()
@@ -76,7 +76,6 @@ class Window extends DartFlexRootContainer {
     addComponent(worksheetGroup);
     
     methodFieldFloater.addHeaderComponent(valueEntry);
-    methodFieldFloater.addHeaderComponent(new Spacer()..width = 1);
     methodFieldFloater.addHeaderComponent(examples);
     
     methodFieldFloater.addComponent(methodField);
@@ -96,10 +95,8 @@ class Window extends DartFlexRootContainer {
   }
   
   void _handleCellSelection(FrameworkEvent<List<Cell>> event) {
-    if (sheet.selectedCells.length >= 2)
-      valueEntry.value = '${sheet.selectedCells.first.id} - ${sheet.selectedCells.last.id}';
-    else if (sheet.selectedCells.isNotEmpty)
-      valueEntry.value = sheet.selectedCells.first.id;
+    if (sheet.selectedCells.isNotEmpty)
+      valueEntry.value = _getSelectionStatement(sheet.selectedCells.first, sheet.selectedCells.last);
     else
       valueEntry.value = '';
     
@@ -144,5 +141,11 @@ class Window extends DartFlexRootContainer {
     methodField.text = exampleJs;
     
     return null;
+  }
+  
+  String _getSelectionStatement(Cell firstCell, Cell lastCell) {
+    if (firstCell == lastCell) return 'Cell(${new String.fromCharCode(firstCell.colIndex + 65)}, ${firstCell.rowIndex + 1})';
+    
+    return 'Cell(${new String.fromCharCode(firstCell.colIndex + 65)}:${new String.fromCharCode(lastCell.colIndex + 65)}, ${firstCell.rowIndex + 1}:${lastCell.rowIndex + 1})';
   }
 }

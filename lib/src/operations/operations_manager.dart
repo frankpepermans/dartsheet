@@ -36,6 +36,22 @@ class OperationsManager {
           });
           
           break;
+        case KeyCode.S :
+          if (event.ctrlKey) {
+            event.preventDefault();
+            
+            worksheet.saveToFile();
+          }
+          
+          break;
+        case KeyCode.O :
+          if (event.ctrlKey) {
+            event.preventDefault();
+            
+            worksheet.loadFromFile();
+          }
+          
+          break;
       }
     }));
   }
