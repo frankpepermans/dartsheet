@@ -48,10 +48,7 @@ class WorkSheet extends VGroup {
     _operationsManager = new operations.OperationsManager(this);
     
     context['__registerNewRxSubscription'] = _registerNewRxSubscription;
-    context["Cell"] = _cellStreamHandler;
-    context["CellClick"] = _cellClickStreamHandler;
-    context["Row"] = _rowStreamHandler;
-    context["Column"] = _columnStreamHandler;
+    context["Select"] = _cellStreamHandler;
   }
   
   //---------------------------------
@@ -679,7 +676,7 @@ class WorkSheet extends VGroup {
   void _registerNewRxSubscription(String cellId, JsObject subscription) => getCellById(cellId).formula.subscriptions.add(subscription);
 
   JsObject _cellStreamHandler(String selector, {bool forClick: false}) {
-    // Cell("A:C, 1:10") => A1 to C10 inclusive
+    // Select("A:C, 1:10") => A1 to C10 inclusive
     final Selector S = new Selector();
     final List<String> cellIds = S.fromCellSelector(selector, getCell, forClick: forClick);
     Cell cellConflict;

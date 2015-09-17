@@ -108,8 +108,8 @@ class Formula extends EventDispatcherImpl {
     
     final Selector S = new Selector();
     
-    return value.replaceAllMapped(new RegExp(r"Cell\([']{0,1}([A-Z,:\s\d]+)[']{0,1}\)", multiLine:true, caseSensitive:false), (Match M) =>
-      'Cell(\'${S.transformCellSelector(M.group(1), appliesTo.rowIndex - _originator.rowIndex, appliesTo.colIndex - _originator.colIndex)}\')'
+    return value.replaceAllMapped(new RegExp(r"Select\([']{0,1}([A-Z,:\s\d]+)[']{0,1}\)", multiLine:true, caseSensitive:false), (Match M) =>
+      'Select(\'${S.transformCellSelector(M.group(1), appliesTo.rowIndex - _originator.rowIndex, appliesTo.colIndex - _originator.colIndex)}\')'
     );
   }
 }

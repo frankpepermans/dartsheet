@@ -133,10 +133,10 @@ class CellItemRenderer<D extends Cell<String>> extends EditableLabelItemRenderer
   void _invalidateStyle() {
     if (textArea == null) return;
     
+    if (_defaultStyle == null) _defaultStyle = new CssStyleDeclaration.css(textArea.control.style.cssText);
+    
     if (data != null && data.style != null) {
       final Iterable<String> keys = context['Object'].callMethod('keys', [data.style]);
-      
-      if (_defaultStyle == null) _defaultStyle = new CssStyleDeclaration.css(textArea.control.style.cssText);
       
       try {
         keys.forEach((String K) => textArea.control.style.setProperty(K, data.style[K]));

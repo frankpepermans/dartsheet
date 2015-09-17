@@ -1,1 +1,1 @@
-Cell(A, 1).subscribe(x => onvalue(x))
+Select(A, 1).subscribe(x => onvalue(x))

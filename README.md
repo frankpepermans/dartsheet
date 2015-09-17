@@ -24,9 +24,9 @@ A minimal set of typical spreadsheet features is included:
 Formulas need to be written in `JavaScript', in either `ES6` OR `ES5` flavour.
 You can use RxJs to work with the following available streams:
 
-* Cells expose as $[column][row], for example $A1 is the stream on the cell at position A1
-* Rows can be referenced as $R[row number], for example $R1
-* Columns can be referenced as $[column], for example $A
+* Cells expose as $[column][row], for example Select(A, 1) is the stream on the cell at position A1
+* Select(A:C, 1:2) is the combined stream of A1, B1, C1, A2, B2, C2
+* Select(A:C, 1:2, F, 1) is the combined stream of A1, B1, C1, A2, B2, C2 plus F1
 
 At any moment, you can instruct your formula to update the underlying cell value, or style
 
@@ -45,10 +45,6 @@ The following example uses an interval to set cell values in the same column:
 ## Quick example
 
 * Launch the app at http://www.igindo.com/rxsheet
-* Click once on the cell A1
-* Type GOOG
-* Click once on the cell B1
-* In the floating formula window dropdown, select "stock ticker"
-* The Google stock will now be refreshed on interval within cell B1
+* Pick saved state => stock ticker from the formula window's dropdown
 
 // note that the stock will only update live when the US stock market is open!
