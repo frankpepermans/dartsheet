@@ -5,16 +5,17 @@
     "loadByDefault": true
   },
   {
+    "title": "saved state => stock ticker",
+    "fileName": "examples/stock_ticker.json",
+    "isSavedFile": true
+  },
+  {
     "title": "sum",
     "fileName": "examples/sum.js"
   },
   {
     "title": "average",
     "fileName": "examples/average.js"
-  },
-  {
-    "title": "stock ticker",
-    "fileName": "examples/yahoo.finance.quotes.js"
   },
   {
     "title": "column increment stream",

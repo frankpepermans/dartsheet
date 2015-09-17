@@ -1,0 +1,224 @@
+[
+   {
+      "id":"A1",
+      "value":"GOOG",
+      "formula":"oncss({  'background-color': '#ccc', 'color': '#000', 'font-weight': 'bold'})",
+      "originator":"A1"
+   },
+   {
+      "id":"B1",
+      "value":"100",
+      "formula":"",
+      "originator":"B1"
+   },
+   {
+      "id":"C1",
+      "value":"63598",
+      "formula":"Rx.Observable.combineLatest(Cell('A, 1'), Cell('B, 1'))\n.bufferWithCount(1).flatMapLatest((data) => \t     Rx.Observable.timer(0, 1000)\n   .flatMapLatest(  _ => Rx.Observable.from(['select LastTradePriceOnly from yahoo.finance.quotes where symbol in (\"' + data[0][0]+ '\")']))\n   .flatMapLatest(yql => Rx.Observable.from(['https://query.yahooapis.com/v1/public/yql?q=' + yql + '&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys&callback=']))\n   .flatMapLatest(url => Rx.DOM.ajax({url: url, responseType: 'json', crossDomain: true}))\n   .pluck('response', 'query', 'results', 'quote', 'LastTradePriceOnly')   .flatMapLatest(x => Rx.Observable.from([x * data[0][1]]))   .bufferWithCount(2, 1)\n   .retryWhen(e => e.delay(200))\n).subscribe(function (n) {\n   oncss({'background-color': (n[0] > n[1]) ? '#fcc' : (n[0] < n[1]) ? '#cfc' : '#fff'})\n   onvalue(n[1])\n}, err => onvalue('-'))",
+      "originator":"C1"
+   },
+   {
+      "id":"D1",
+      "value":"USD",
+      "formula":"Cell('A, 1').flatMapLatest(stockName => Rx.Observable.from(['select Currency from yahoo.finance.quotes where symbol in (\"' + stockName + '\")']))\n.flatMapLatest(yql => Rx.Observable.from(['https://query.yahooapis.com/v1/public/yql?q=' + yql + '&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys&callback='])\n   .flatMapLatest(url => Rx.DOM.ajax({url: url, responseType: 'json', crossDomain: true}))\n   .pluck('response', 'query', 'results', 'quote', 'Currency')\n   .retryWhen(e => e.delay(200))\n).subscribe(function (n) {\n   onvalue(n)\n}, err => onvalue('-'))",
+      "originator":"D1"
+   },
+   {
+      "id":"A2",
+      "value":"AAPL",
+      "formula":"oncss({  'background-color': '#ccc', 'color': '#000', 'font-weight': 'bold'})",
+      "originator":"A2"
+   },
+   {
+      "id":"B2",
+      "value":"50",
+      "formula":"",
+      "originator":"B2"
+   },
+   {
+      "id":"C2",
+      "value":"5820.5",
+      "formula":"Rx.Observable.combineLatest(Cell('A, 2'), Cell('B, 2'))\n.bufferWithCount(1).flatMapLatest((data) => \t     Rx.Observable.timer(0, 1000)\n   .flatMapLatest(  _ => Rx.Observable.from(['select LastTradePriceOnly from yahoo.finance.quotes where symbol in (\"' + data[0][0]+ '\")']))\n   .flatMapLatest(yql => Rx.Observable.from(['https://query.yahooapis.com/v1/public/yql?q=' + yql + '&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys&callback=']))\n   .flatMapLatest(url => Rx.DOM.ajax({url: url, responseType: 'json', crossDomain: true}))\n   .pluck('response', 'query', 'results', 'quote', 'LastTradePriceOnly')   .flatMapLatest(x => Rx.Observable.from([x * data[0][1]]))   .bufferWithCount(2, 1)\n   .retryWhen(e => e.delay(200))\n).subscribe(function (n) {\n   oncss({'background-color': (n[0] > n[1]) ? '#fcc' : (n[0] < n[1]) ? '#cfc' : '#fff'})\n   onvalue(n[1])\n}, err => onvalue('-'))",
+      "originator":"C2"
+   },
+   {
+      "id":"D2",
+      "value":"USD",
+      "formula":"Cell('A, 2').flatMapLatest(stockName => Rx.Observable.from(['select Currency from yahoo.finance.quotes where symbol in (\"' + stockName + '\")']))\n.flatMapLatest(yql => Rx.Observable.from(['https://query.yahooapis.com/v1/public/yql?q=' + yql + '&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys&callback='])\n   .flatMapLatest(url => Rx.DOM.ajax({url: url, responseType: 'json', crossDomain: true}))\n   .pluck('response', 'query', 'results', 'quote', 'Currency')\n   .retryWhen(e => e.delay(200))\n).subscribe(function (n) {\n   onvalue(n)\n}, err => onvalue('-'))",
+      "originator":"D2"
+   },
+   {
+      "id":"A3",
+      "value":"MSFT",
+      "formula":"oncss({  'background-color': '#ccc', 'color': '#000', 'font-weight': 'bold'})",
+      "originator":"A3"
+   },
+   {
+      "id":"B3",
+      "value":"30",
+      "formula":"",
+      "originator":"B3"
+   },
+   {
+      "id":"C3",
+      "value":"1329",
+      "formula":"Rx.Observable.combineLatest(Cell('A, 3'), Cell('B, 3'))\n.bufferWithCount(1).flatMapLatest((data) => \t     Rx.Observable.timer(0, 1000)\n   .flatMapLatest(  _ => Rx.Observable.from(['select LastTradePriceOnly from yahoo.finance.quotes where symbol in (\"' + data[0][0]+ '\")']))\n   .flatMapLatest(yql => Rx.Observable.from(['https://query.yahooapis.com/v1/public/yql?q=' + yql + '&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys&callback=']))\n   .flatMapLatest(url => Rx.DOM.ajax({url: url, responseType: 'json', crossDomain: true}))\n   .pluck('response', 'query', 'results', 'quote', 'LastTradePriceOnly')   .flatMapLatest(x => Rx.Observable.from([x * data[0][1]]))   .bufferWithCount(2, 1)\n   .retryWhen(e => e.delay(200))\n).subscribe(function (n) {\n   oncss({'background-color': (n[0] > n[1]) ? '#fcc' : (n[0] < n[1]) ? '#cfc' : '#fff'})\n   onvalue(n[1])\n}, err => onvalue('-'))",
+      "originator":"C3"
+   },
+   {
+      "id":"D3",
+      "value":"USD",
+      "formula":"Cell('A, 3').flatMapLatest(stockName => Rx.Observable.from(['select Currency from yahoo.finance.quotes where symbol in (\"' + stockName + '\")']))\n.flatMapLatest(yql => Rx.Observable.from(['https://query.yahooapis.com/v1/public/yql?q=' + yql + '&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys&callback='])\n   .flatMapLatest(url => Rx.DOM.ajax({url: url, responseType: 'json', crossDomain: true}))\n   .pluck('response', 'query', 'results', 'quote', 'Currency')\n   .retryWhen(e => e.delay(200))\n).subscribe(function (n) {\n   onvalue(n)\n}, err => onvalue('-'))",
+      "originator":"D3"
+   },
+   {
+      "id":"A4",
+      "value":"IBM",
+      "formula":"oncss({  'background-color': '#ccc', 'color': '#000', 'font-weight': 'bold'})",
+      "originator":"A4"
+   },
+   {
+      "id":"B4",
+      "value":"120",
+      "formula":"",
+      "originator":"B4"
+   },
+   {
+      "id":"C4",
+      "value":"17809.2",
+      "formula":"Rx.Observable.combineLatest(Cell('A, 4'), Cell('B, 4'))\n.bufferWithCount(1).flatMapLatest((data) => \t     Rx.Observable.timer(0, 1000)\n   .flatMapLatest(  _ => Rx.Observable.from(['select LastTradePriceOnly from yahoo.finance.quotes where symbol in (\"' + data[0][0]+ '\")']))\n   .flatMapLatest(yql => Rx.Observable.from(['https://query.yahooapis.com/v1/public/yql?q=' + yql + '&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys&callback=']))\n   .flatMapLatest(url => Rx.DOM.ajax({url: url, responseType: 'json', crossDomain: true}))\n   .pluck('response', 'query', 'results', 'quote', 'LastTradePriceOnly')   .flatMapLatest(x => Rx.Observable.from([x * data[0][1]]))   .bufferWithCount(2, 1)\n   .retryWhen(e => e.delay(200))\n).subscribe(function (n) {\n   oncss({'background-color': (n[0] > n[1]) ? '#fcc' : (n[0] < n[1]) ? '#cfc' : '#fff'})\n   onvalue(n[1])\n}, err => onvalue('-'))",
+      "originator":"C4"
+   },
+   {
+      "id":"D4",
+      "value":"USD",
+      "formula":"Cell('A, 4').flatMapLatest(stockName => Rx.Observable.from(['select Currency from yahoo.finance.quotes where symbol in (\"' + stockName + '\")']))\n.flatMapLatest(yql => Rx.Observable.from(['https://query.yahooapis.com/v1/public/yql?q=' + yql + '&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys&callback='])\n   .flatMapLatest(url => Rx.DOM.ajax({url: url, responseType: 'json', crossDomain: true}))\n   .pluck('response', 'query', 'results', 'quote', 'Currency')\n   .retryWhen(e => e.delay(200))\n).subscribe(function (n) {\n   onvalue(n)\n}, err => onvalue('-'))",
+      "originator":"D4"
+   },
+   {
+      "id":"A5",
+      "value":"MSI",
+      "formula":"oncss({  'background-color': '#ccc', 'color': '#000', 'font-weight': 'bold'})",
+      "originator":"A5"
+   },
+   {
+      "id":"B5",
+      "value":"40",
+      "formula":"",
+      "originator":"B5"
+   },
+   {
+      "id":"C5",
+      "value":"2698.8",
+      "formula":"Rx.Observable.combineLatest(Cell('A, 5'), Cell('B, 5'))\n.bufferWithCount(1).flatMapLatest((data) => \t     Rx.Observable.timer(0, 1000)\n   .flatMapLatest(  _ => Rx.Observable.from(['select LastTradePriceOnly from yahoo.finance.quotes where symbol in (\"' + data[0][0]+ '\")']))\n   .flatMapLatest(yql => Rx.Observable.from(['https://query.yahooapis.com/v1/public/yql?q=' + yql + '&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys&callback=']))\n   .flatMapLatest(url => Rx.DOM.ajax({url: url, responseType: 'json', crossDomain: true}))\n   .pluck('response', 'query', 'results', 'quote', 'LastTradePriceOnly')   .flatMapLatest(x => Rx.Observable.from([x * data[0][1]]))   .bufferWithCount(2, 1)\n   .retryWhen(e => e.delay(200))\n).subscribe(function (n) {\n   oncss({'background-color': (n[0] > n[1]) ? '#fcc' : (n[0] < n[1]) ? '#cfc' : '#fff'})\n   onvalue(n[1])\n}, err => onvalue('-'))",
+      "originator":"C5"
+   },
+   {
+      "id":"D5",
+      "value":"USD",
+      "formula":"Cell('A, 5').flatMapLatest(stockName => Rx.Observable.from(['select Currency from yahoo.finance.quotes where symbol in (\"' + stockName + '\")']))\n.flatMapLatest(yql => Rx.Observable.from(['https://query.yahooapis.com/v1/public/yql?q=' + yql + '&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys&callback='])\n   .flatMapLatest(url => Rx.DOM.ajax({url: url, responseType: 'json', crossDomain: true}))\n   .pluck('response', 'query', 'results', 'quote', 'Currency')\n   .retryWhen(e => e.delay(200))\n).subscribe(function (n) {\n   onvalue(n)\n}, err => onvalue('-'))",
+      "originator":"D5"
+   },
+   {
+      "id":"A6",
+      "value":"BX7.DE",
+      "formula":"oncss({  'background-color': '#ccc', 'color': '#000', 'font-weight': 'bold'})",
+      "originator":"A6"
+   },
+   {
+      "id":"B6",
+      "value":"60",
+      "formula":"",
+      "originator":"B6"
+   },
+   {
+      "id":"C6",
+      "value":"1950",
+      "formula":"Rx.Observable.combineLatest(Cell('A, 6'), Cell('B, 6'))\n.bufferWithCount(1).flatMapLatest((data) => \t     Rx.Observable.timer(0, 1000)\n   .flatMapLatest(  _ => Rx.Observable.from(['select LastTradePriceOnly from yahoo.finance.quotes where symbol in (\"' + data[0][0]+ '\")']))\n   .flatMapLatest(yql => Rx.Observable.from(['https://query.yahooapis.com/v1/public/yql?q=' + yql + '&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys&callback=']))\n   .flatMapLatest(url => Rx.DOM.ajax({url: url, responseType: 'json', crossDomain: true}))\n   .pluck('response', 'query', 'results', 'quote', 'LastTradePriceOnly')   .flatMapLatest(x => Rx.Observable.from([x * data[0][1]]))   .bufferWithCount(2, 1)\n   .retryWhen(e => e.delay(200))\n).subscribe(function (n) {\n   oncss({'background-color': (n[0] > n[1]) ? '#fcc' : (n[0] < n[1]) ? '#cfc' : '#fff'})\n   onvalue(n[1])\n}, err => onvalue('-'))",
+      "originator":"C6"
+   },
+   {
+      "id":"D6",
+      "value":"EUR",
+      "formula":"Cell('A, 6').flatMapLatest(stockName => Rx.Observable.from(['select Currency from yahoo.finance.quotes where symbol in (\"' + stockName + '\")']))\n.flatMapLatest(yql => Rx.Observable.from(['https://query.yahooapis.com/v1/public/yql?q=' + yql + '&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys&callback='])\n   .flatMapLatest(url => Rx.DOM.ajax({url: url, responseType: 'json', crossDomain: true}))\n   .pluck('response', 'query', 'results', 'quote', 'Currency')\n   .retryWhen(e => e.delay(200))\n).subscribe(function (n) {\n   onvalue(n)\n}, err => onvalue('-'))",
+      "originator":"D6"
+   },
+   {
+      "id":"A7",
+      "value":"DTE.DE",
+      "formula":"oncss({  'background-color': '#ccc', 'color': '#000', 'font-weight': 'bold'})",
+      "originator":"A7"
+   },
+   {
+      "id":"B7",
+      "value":"100",
+      "formula":null,
+      "originator":null
+   },
+   {
+      "id":"C7",
+      "value":"1593",
+      "formula":"Rx.Observable.combineLatest(Cell('A, 7'), Cell('B, 7'))\n.bufferWithCount(1).flatMapLatest((data) => \t     Rx.Observable.timer(0, 1000)\n   .flatMapLatest(  _ => Rx.Observable.from(['select LastTradePriceOnly from yahoo.finance.quotes where symbol in (\"' + data[0][0]+ '\")']))\n   .flatMapLatest(yql => Rx.Observable.from(['https://query.yahooapis.com/v1/public/yql?q=' + yql + '&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys&callback=']))\n   .flatMapLatest(url => Rx.DOM.ajax({url: url, responseType: 'json', crossDomain: true}))\n   .pluck('response', 'query', 'results', 'quote', 'LastTradePriceOnly')   .flatMapLatest(x => Rx.Observable.from([x * data[0][1]]))   .bufferWithCount(2, 1)\n   .retryWhen(e => e.delay(200))\n).subscribe(function (n) {\n   oncss({'background-color': (n[0] > n[1]) ? '#fcc' : (n[0] < n[1]) ? '#cfc' : '#fff'})\n   onvalue(n[1])\n}, err => onvalue('-'))",
+      "originator":"C7"
+   },
+   {
+      "id":"D7",
+      "value":"EUR",
+      "formula":"Cell('A, 7').flatMapLatest(stockName => Rx.Observable.from(['select Currency from yahoo.finance.quotes where symbol in (\"' + stockName + '\")']))\n.flatMapLatest(yql => Rx.Observable.from(['https://query.yahooapis.com/v1/public/yql?q=' + yql + '&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys&callback='])\n   .flatMapLatest(url => Rx.DOM.ajax({url: url, responseType: 'json', crossDomain: true}))\n   .pluck('response', 'query', 'results', 'quote', 'Currency')\n   .retryWhen(e => e.delay(200))\n).subscribe(function (n) {\n   onvalue(n)\n}, err => onvalue('-'))",
+      "originator":"D7"
+   },
+   {
+      "id":"A8",
+      "value":"BDN",
+      "formula":"oncss({  'background-color': '#ccc', 'color': '#000', 'font-weight': 'bold'})",
+      "originator":"A8"
+   },
+   {
+      "id":"B8",
+      "value":"100",
+      "formula":null,
+      "originator":null
+   },
+   {
+      "id":"C8",
+      "value":"1231",
+      "formula":"Rx.Observable.combineLatest(Cell('A, 8'), Cell('B, 8'))\n.bufferWithCount(1).flatMapLatest((data) => \t     Rx.Observable.timer(0, 1000)\n   .flatMapLatest(  _ => Rx.Observable.from(['select LastTradePriceOnly from yahoo.finance.quotes where symbol in (\"' + data[0][0]+ '\")']))\n   .flatMapLatest(yql => Rx.Observable.from(['https://query.yahooapis.com/v1/public/yql?q=' + yql + '&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys&callback=']))\n   .flatMapLatest(url => Rx.DOM.ajax({url: url, responseType: 'json', crossDomain: true}))\n   .pluck('response', 'query', 'results', 'quote', 'LastTradePriceOnly')   .flatMapLatest(x => Rx.Observable.from([x * data[0][1]]))   .bufferWithCount(2, 1)\n   .retryWhen(e => e.delay(200))\n).subscribe(function (n) {\n   oncss({'background-color': (n[0] > n[1]) ? '#fcc' : (n[0] < n[1]) ? '#cfc' : '#fff'})\n   onvalue(n[1])\n}, err => onvalue('-'))",
+      "originator":"C8"
+   },
+   {
+      "id":"D8",
+      "value":"USD",
+      "formula":"Cell('A, 8').flatMapLatest(stockName => Rx.Observable.from(['select Currency from yahoo.finance.quotes where symbol in (\"' + stockName + '\")']))\n.flatMapLatest(yql => Rx.Observable.from(['https://query.yahooapis.com/v1/public/yql?q=' + yql + '&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys&callback='])\n   .flatMapLatest(url => Rx.DOM.ajax({url: url, responseType: 'json', crossDomain: true}))\n   .pluck('response', 'query', 'results', 'quote', 'Currency')\n   .retryWhen(e => e.delay(200))\n).subscribe(function (n) {\n   onvalue(n)\n}, err => onvalue('-'))",
+      "originator":"D8"
+   },
+   {
+      "id":"A10",
+      "value":"TOTAL",
+      "formula":"oncss({  'background-color': '#cfc', 'color': '#000', 'font-weight': 'bold'})",
+      "originator":"A10"
+   },
+   {
+      "id":"B10",
+      "value":"600",
+      "formula":"oncss({  'background-color': '#cfc', 'color': '#000', 'font-weight': 'bold'});Cell('B, 1:8')\n.subscribe(x => onvalue(Math.round(x.reduce((p, c) => Number(p) + Number(c)))))",
+      "originator":"B10"
+   },
+   {
+      "id":"C10",
+      "value":"96030",
+      "formula":"oncss({  'background-color': '#cfc', 'color': '#000', 'font-weight': 'bold'});Cell('C, 1:8')\n.subscribe(x => onvalue(Math.round(x.reduce((p, c) => Number(p) + Number(c)))))",
+      "originator":"C10"
+   },
+   {
+      "id":"C11",
+      "value":"",
+      "formula":null,
+      "originator":null
+   },
+   {
+      "id":"C12",
+      "value":"",
+      "formula":null,
+      "originator":"C12"
+   }
+]

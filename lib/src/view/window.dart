@@ -115,8 +115,8 @@ class Window extends DartFlexRootContainer {
     scriptValidationRenderer.data = event.relatedObject;
   }
   
-  void _dropdown_selectionHandler(FrameworkEvent<String> event) {
-    if (event.relatedObject != null) _loadExample((event.relatedObject as Map<String, dynamic>)['fileName']);
+  void _dropdown_selectionHandler(FrameworkEvent<Map<String, dynamic>> event) {
+    if (event.relatedObject != null) _loadExample(event.relatedObject);
   }
   
   Future _loadManifest() async {
@@ -129,14 +129,22 @@ class Window extends DartFlexRootContainer {
     
     examples.dataProvider = new ObservableList<Map<String, dynamic>>.from(manifest);
     
-    _loadExample(defaultExample['fileName']);
+    _loadExample(defaultExample);
   }
   
-  Future _loadExample(String fileName) async {
-    final String exampleJs = await HttpRequest.getString(fileName);
+  Future _loadExample(Map<String, dynamic> example) async {
+    final String exampleJs = await HttpRequest.getString(example['fileName']);
     
     /*if (sheet.lastEditedCell != null) methodField.text = exampleJs.replaceAll(new RegExp(r'\$[A-Z]+[\d]+'), '\$${sheet.lastEditedCell.id}');
     else methodField.text = exampleJs;*/
+    
+    if (example.containsKey('isSavedFile') && example['isSavedFile'] == true) {
+      sheet.load(exampleJs);
+      
+      methodField.text = '// ${example['title']} successfully loaded!';
+      
+      return null;
+    }
     
     methodField.text = exampleJs;
     

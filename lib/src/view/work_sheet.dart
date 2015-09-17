@@ -682,9 +682,13 @@ class WorkSheet extends VGroup {
     // Cell("A:C, 1:10") => A1 to C10 inclusive
     final Selector S = new Selector();
     final List<String> cellIds = S.fromCellSelector(selector, getCell, forClick: forClick);
-    final Cell cellConflict = _selectedCells.firstWhere((Cell cell) {
+    Cell cellConflict;
+    
+    if (_selectedCells != null && _selectedCells.isNotEmpty) {
+      cellConflict = _selectedCells.firstWhere((Cell cell) {
         return cellIds.where((String id) => cell.id == id).isNotEmpty;
       }, orElse: () => null);
+    }
     
     if (cellConflict != null) {
       cellConflict.formula.isValid = false;
