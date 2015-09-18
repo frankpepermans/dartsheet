@@ -58,7 +58,6 @@ class FormulaBox extends Component {
     
     code = document.createElement('code')
     ..contentEditable = 'true'
-    ..onFocus.listen((_) => invokeLaterSingle('runHighlight', _runHighlight))
     ..onBlur.listen((_) => invokeLaterSingle('runHighlight', _runHighlight))
     ..onPaste.listen((_) {
       _text = code.text;

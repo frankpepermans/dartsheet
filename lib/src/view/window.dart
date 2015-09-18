@@ -13,6 +13,8 @@ class Window extends DartFlexRootContainer {
   
   Window(String elementId) : super(elementId: elementId) {
     className = 'main-window';
+    // supported languages: [css, markdown, apache, http, objectivec, json, javascript, java, xml]
+    context['hljs'].callMethod('configure', const [const <String, dynamic>{'tabReplace': '   ', 'languages': const <String>['javascript']}]);
   }
   
   @override
