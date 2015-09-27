@@ -135,7 +135,7 @@ class WorkSheet extends VGroup {
     
     addComponent(gridGroup);
     
-    spreadsheet.dataProvider = _createNewDataProvider(0);
+    spreadsheet.dataProvider = new ObservableList<Row<Cell>>.from(_createRows(0));
     
     _updateOverlay();
   }
@@ -359,10 +359,9 @@ class WorkSheet extends VGroup {
   //
   //---------------------------------
   
-  ObservableList<Row<Cell>> _createNewDataProvider(int startRowIndex) =>
-    new ObservableList<Row<Cell>>.from(
-        new List<Row<Cell>>.generate(initRows, (int rowIndex) => _createRow(startRowIndex + rowIndex))
-    );
+  Iterable<Row<Cell>> _createRows(int startRowIndex) sync* {
+    yield* new List<Row<Cell>>.generate(initRows, (int rowIndex) => _createRow(startRowIndex + rowIndex));
+  }
   
   ObservableList<DataGridColumn> _createGridColumns() {
     final ObservableList<DataGridColumn> list = new ObservableList<DataGridColumn>.from(
@@ -411,7 +410,7 @@ class WorkSheet extends VGroup {
     final int startIndex = spreadsheet.scrollPosition ~/ spreadsheet.rowHeight;
     
     if (spreadsheet.scrollPosition > (spreadsheet.rowHeight * spreadsheet.dataProvider.length - spreadsheet.height) * .95) 
-      spreadsheet.dataProvider.addAll(_createNewDataProvider(spreadsheet.dataProvider.length));
+      spreadsheet.dataProvider.addAll(_createRows(spreadsheet.dataProvider.length));
     
     final List<Row<Cell>> columnListDataProvider = new List<Row<Cell>>.generate(columnList.lockIndex, (int i) => spreadsheet.dataProvider[i]);
     
